@@ -8,8 +8,14 @@ import {
   Sun, 
   Moon, 
   CheckCircle2,
-  FileCheck
+  Share2,
+  FolderCheck,
+  Cloud,
+  CloudOff,
+  CloudRain,
+  Settings
 } from 'lucide-react';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 export default function Header({
   headerData,
@@ -21,7 +27,10 @@ export default function Header({
   togglePreview,
   showPreview,
   saveStatus,
-  progressPercentage
+  progressPercentage,
+  onOpenShareModal,
+  onOpenDashboard,
+  onOpenSupabaseConfig
 }) {
   // SVG Radial Ring Calculation
   const radius = 17;
@@ -70,13 +79,59 @@ export default function Header({
             </span>
             <span>•</span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: 'var(--sage-emerald)', fontWeight: 600 }}>
-              <CheckCircle2 size={13} /> {saveStatus}
+              {isSupabaseConfigured ? (
+                <>
+                  <Cloud size={13} /> {saveStatus}
+                </>
+              ) : (
+                <button
+                  onClick={onOpenSupabaseConfig}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    color: 'var(--rose-dust)',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    fontSize: '0.78rem',
+                    textDecoration: 'underline'
+                  }}
+                  title="Clique para conectar com Supabase"
+                >
+                  <CloudOff size={13} /> Configurar Nuvem (Supabase)
+                </button>
+              )}
             </span>
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', flexWrap: 'wrap' }}>
+        {/* Meus Briefings Button */}
+        <button
+          onClick={onOpenDashboard}
+          className="btn btn-secondary btn-sm"
+          title="Ver todos os briefings salvos na nuvem"
+          style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+        >
+          <FolderCheck size={16} style={{ color: 'var(--rose-dust)' }} />
+          <span style={{ display: window.innerWidth < 768 ? 'none' : 'inline' }}>Meus Briefings</span>
+        </button>
+
+        {/* Compartilhar / Enviar para Cliente */}
+        <button
+          onClick={onOpenShareModal}
+          className="btn btn-primary btn-sm"
+          title="Gerar link único para a cliente preencher"
+          style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', backgroundColor: 'var(--rose-dust)', color: '#fff' }}
+        >
+          <Share2 size={16} />
+          <span>Enviar p/ Cliente</span>
+        </button>
+
         <button 
           onClick={toggleTheme} 
           className="btn btn-secondary btn-icon"
