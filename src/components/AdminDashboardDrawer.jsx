@@ -285,7 +285,7 @@ export default function AdminDashboardDrawer({
               style={{
                 flex: 1,
                 padding: '0.6rem',
-                fontSize: '0.8rem',
+                fontSize: '0.75rem',
                 fontWeight: 600,
                 border: 'none',
                 borderBottom: previewTab === 'formatted' ? '2px solid var(--text-primary)' : '2px solid transparent',
@@ -301,7 +301,7 @@ export default function AdminDashboardDrawer({
               style={{
                 flex: 1,
                 padding: '0.6rem',
-                fontSize: '0.8rem',
+                fontSize: '0.75rem',
                 fontWeight: 600,
                 border: 'none',
                 borderBottom: previewTab === 'raw' ? '2px solid var(--text-primary)' : '2px solid transparent',
@@ -323,16 +323,16 @@ export default function AdminDashboardDrawer({
               <div className="admin-preview-formatted">
                 {mdContent.split('\n').map((line, idx) => {
                   if (line.startsWith('# ')) {
-                    return <h2 key={idx} style={{ fontSize: '1.4rem', marginBottom: '0.75rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.4rem' }}>{line.replace('# ', '')}</h2>;
+                    return <h2 key={idx} style={{ fontSize: '1.25rem', marginBottom: '0.75rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.4rem' }}>{line.replace('# ', '')}</h2>;
                   }
                   if (line.startsWith('## ')) {
-                    return <h3 key={idx} style={{ fontSize: '1.1rem', marginTop: '1.25rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{line.replace('## ', '')}</h3>;
+                    return <h3 key={idx} style={{ fontSize: '1.05rem', marginTop: '1.25rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{line.replace('## ', '')}</h3>;
                   }
                   if (line.startsWith('### ')) {
-                    return <h4 key={idx} style={{ fontSize: '0.95rem', marginTop: '0.85rem', marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>{line.replace('### ', '')}</h4>;
+                    return <h4 key={idx} style={{ fontSize: '0.9rem', marginTop: '0.85rem', marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>{line.replace('### ', '')}</h4>;
                   }
                   if (line.startsWith('> ')) {
-                    return <blockquote key={idx} style={{ borderLeft: '3px solid var(--border-dark)', paddingLeft: '0.75rem', color: 'var(--text-muted)', fontSize: '0.85rem', margin: '0.25rem 0' }}>{line.replace('> ', '')}</blockquote>;
+                    return <blockquote key={idx} style={{ borderLeft: '1px solid var(--border-color)', paddingLeft: '0.75rem', color: 'var(--text-muted)', fontSize: '0.75rem', margin: '0.25rem 0' }}>{line.replace('> ', '')}</blockquote>;
                   }
                   if (line === '---') {
                     return <hr key={idx} style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '1rem 0' }} />;

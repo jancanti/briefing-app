@@ -25,7 +25,7 @@ export default function MarkdownPreviewDrawer({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <FileText size={19} style={{ color: 'var(--rose-dust)' }} />
-          <h3 style={{ fontSize: '1rem', fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--espresso-slate)' }}>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--espresso-slate)' }}>
             Prévia do Briefing
           </h3>
         </div>
@@ -62,7 +62,7 @@ export default function MarkdownPreviewDrawer({
           style={{
             flex: 1,
             padding: '0.6rem',
-            fontSize: '0.8rem',
+            fontSize: '0.75rem',
             fontWeight: 600,
             border: 'none',
             borderBottom: viewTab === 'formatted' ? '2px solid var(--rose-dust)' : '2px solid transparent',
@@ -79,7 +79,7 @@ export default function MarkdownPreviewDrawer({
           style={{
             flex: 1,
             padding: '0.6rem',
-            fontSize: '0.8rem',
+            fontSize: '0.75rem',
             fontWeight: 600,
             border: 'none',
             borderBottom: viewTab === 'raw' ? '2px solid var(--rose-dust)' : '2px solid transparent',
@@ -101,7 +101,7 @@ export default function MarkdownPreviewDrawer({
               whiteSpace: 'pre-wrap',
               wordBreak: 'break-word',
               fontFamily: 'var(--font-mono)',
-              fontSize: '0.82rem',
+              fontSize: '0.75rem',
               lineHeight: 1.6,
               color: 'var(--espresso-slate)',
               backgroundColor: 'var(--surface-white)',
@@ -121,16 +121,16 @@ export default function MarkdownPreviewDrawer({
               borderRadius: 'var(--radius-md)',
               border: '1px solid var(--border-delicate)',
               boxShadow: 'var(--shadow-subtle)',
-              fontSize: '0.88rem',
+              fontSize: '0.9rem',
               lineHeight: 1.65,
               color: 'var(--espresso-slate)'
             }}
           >
             <div style={{ borderBottom: '2px solid var(--rose-dust)', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
-              <span style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--rose-dust)' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--rose-dust)' }}>
                 Documento de Briefing
               </span>
-              <h4 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', fontWeight: 700, color: 'var(--espresso-slate)' }}>
+              <h4 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', fontWeight: 700, color: 'var(--espresso-slate)' }}>
                 {markdownContent.split('\n')[0].replace('# 📋 Documento de Briefing - ', '')}
               </h4>
             </div>

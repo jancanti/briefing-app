@@ -26,7 +26,7 @@ export default function ToastNotification({ toast }) {
         borderRadius: 'var(--radius-sm)',
         border: '1px solid var(--border-color)',
         boxShadow: 'var(--shadow-lg)',
-        fontSize: '0.85rem',
+        fontSize: '0.9rem',
         fontWeight: 600,
         fontFamily: 'var(--font-family)',
         animation: 'fadeIn 0.2s ease-out'

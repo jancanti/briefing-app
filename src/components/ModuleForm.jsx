@@ -35,7 +35,7 @@ export default function ModuleForm({
         <h2 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.2rem', lineHeight: 1.15, letterSpacing: '-0.02em' }}>
           {module.title}
         </h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginTop: '0.5rem', lineHeight: 1.5 }}>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem', lineHeight: 1.5 }}>
           {module.description}
         </p>
       </div>
@@ -64,14 +64,14 @@ export default function ModuleForm({
                 </label>
 
                 {hasVal && (
-                  <span style={{ fontSize: '0.7rem', color: 'var(--bg-primary)', backgroundColor: 'var(--text-primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-full)' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--bg-primary)', backgroundColor: 'var(--text-primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-full)' }}>
                     <Check size={12} strokeWidth={2.5} /> Preenchido
                   </span>
                 )}
               </div>
 
               {q.hint && (
-                <p style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', marginBottom: '0.9rem', lineHeight: 1.45 }}>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.9rem', lineHeight: 1.45 }}>
                   {q.hint}
                 </p>
               )}

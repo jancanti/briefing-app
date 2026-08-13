@@ -58,7 +58,7 @@ export default function ShareModal({ briefingId, clinicName, isOpen, onClose, sh
             padding: '0.85rem 1rem',
             borderRadius: 'var(--radius-sm)',
             border: '1px solid var(--border-color)',
-            fontSize: '0.8rem',
+            fontSize: '0.75rem',
             lineHeight: '1.4',
             color: 'var(--text-primary)'
           }}>
@@ -84,7 +84,7 @@ export default function ShareModal({ briefingId, clinicName, isOpen, onClose, sh
                   border: '1px solid var(--border-color)',
                   backgroundColor: 'var(--bg-secondary)',
                   color: 'var(--text-primary)',
-                  fontSize: '0.8rem',
+                  fontSize: '0.75rem',
                   fontFamily: 'monospace'
                 }}
               />

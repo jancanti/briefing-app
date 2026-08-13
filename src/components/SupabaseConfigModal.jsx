@@ -46,22 +46,22 @@ create policy "Permissão de briefings por usuário" on briefings
         <div className="auth-modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {/* Passo 1 */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)', margin: 0 }}>
-              <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>1</span>
+            <h4 style={{ fontSize: '0.9rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)', margin: 0 }}>
+              <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>1</span>
               Criar projeto no Supabase (Gratuito)
             </h4>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
               Acesse <a href="https://supabase.com" target="_blank" rel="noreferrer" style={{ color: 'var(--text-primary)', fontWeight: 600, textDecoration: 'underline' }}>supabase.com <ExternalLink size={11} style={{ display: 'inline' }} /></a>, faça login e crie um projeto novo gratuito.
             </p>
           </div>
 
           {/* Passo 2 */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)', margin: 0 }}>
-              <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>2</span>
+            <h4 style={{ fontSize: '0.9rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)', margin: 0 }}>
+              <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>2</span>
               Criar a tabela de Briefings (SQL)
             </h4>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
               No Supabase, vá na aba <strong>SQL Editor</strong>, cole o código abaixo e clique em <strong>RUN</strong>:
             </p>
             <pre style={{
@@ -80,8 +80,8 @@ create policy "Permissão de briefings por usuário" on briefings
 
           {/* Passo 3 */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)', margin: 0 }}>
-              <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>3</span>
+            <h4 style={{ fontSize: '0.9rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)', margin: 0 }}>
+              <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>3</span>
               Adicionar Variáveis de Ambiente
             </h4>
             <pre style={{
