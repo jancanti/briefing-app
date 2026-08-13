@@ -10,6 +10,7 @@ import SupabaseConfigModal from './components/SupabaseConfigModal';
 import AuthScreen from './components/AuthScreen';
 import './App.css';
 
+import { ChevronUp } from 'lucide-react';
 import { BRIEFING_MODULES, INITIAL_HEADER } from './data/briefingModules';
 import { isSupabaseConfigured } from './lib/supabase';
 import { 
@@ -39,6 +40,15 @@ export default function App() {
   const [toast, setToast] = useState(null);
   const [saveStatus, setSaveStatus] = useState('Salvo localmente');
   const [isCloudLoading, setIsCloudLoading] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 250);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Modais e Drawers
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -484,6 +494,17 @@ export default function App() {
       />
 
       <ToastNotification toast={toast} />
+
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="scroll-to-top-btn"
+          title="Voltar ao Topo"
+          aria-label="Voltar ao Topo"
+        >
+          <ChevronUp size={20} />
+        </button>
+      )}
     </div>
   );
 }
