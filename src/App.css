@@ -617,31 +617,42 @@
 
 /* Monochromatic Sanctuary Login Screen matching DESIGN.md */
 .auth-screen-layout {
+  position: relative;
   min-height: 100vh;
   width: 100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   background-color: var(--bg-tertiary, #f4f4f5);
-  padding: 2rem 1rem;
+  padding: 4rem 1rem;
   font-family: var(--font-family);
-  gap: 1.25rem;
 }
 
 .auth-top-owner {
+  position: absolute;
+  top: 1.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 2rem);
   font-size: 0.8125rem;
   font-weight: 500;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-muted, #71717a);
   text-align: center;
+  pointer-events: none;
 }
 
 .auth-footer-copyright {
+  position: absolute;
+  bottom: 1.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 2rem);
   font-size: 0.75rem;
   color: var(--text-muted, #a1a1aa);
   text-align: center;
+  pointer-events: none;
 }
 
 .auth-screen-card {
