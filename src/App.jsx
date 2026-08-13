@@ -305,17 +305,29 @@ export default function App() {
   };
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-    document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-    document.body.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    } catch (e) {
+      window.scrollTo(0, 0);
+    }
   };
+
+  // Auto-scroll to top smoothly whenever active module changes
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    const timer = setTimeout(() => {
+      scrollToTop();
+    }, 40);
+    return () => clearTimeout(timer);
+  }, [activeModuleId]);
 
   const handleNextModule = () => {
     if (activeModuleIndex < BRIEFING_MODULES.length - 1) {
       setActiveModuleId(BRIEFING_MODULES[activeModuleIndex + 1].id);
-      scrollToTop();
     } else {
       showToastNotification('Parabéns! Você chegou ao final do briefing.', 'info');
     }
@@ -324,7 +336,6 @@ export default function App() {
   const handlePrevModule = () => {
     if (activeModuleIndex > 0) {
       setActiveModuleId(BRIEFING_MODULES[activeModuleIndex - 1].id);
-      scrollToTop();
     }
   };
 

@@ -145,9 +145,6 @@ export default function ModuleForm({
             onClick={(e) => {
               e.preventDefault();
               onPrevModule();
-              window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-              document.documentElement.scrollTop = 0;
-              document.body.scrollTop = 0;
             }}
             disabled={isFirstModule}
             className="btn-bw-secondary"
@@ -162,9 +159,6 @@ export default function ModuleForm({
             onClick={(e) => {
               e.preventDefault();
               onNextModule();
-              window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-              document.documentElement.scrollTop = 0;
-              document.body.scrollTop = 0;
             }}
             className="btn-bw-primary"
           >
