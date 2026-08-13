@@ -1,6 +1,5 @@
 import React from 'react';
 import { 
-  Cloud,
   CloudOff,
   User,
   LogOut,
@@ -92,20 +91,20 @@ export default function Header({
             <span className="header-clinic-name">
               {headerData.clinicName || 'Nova Clínica de Estética'}
             </span>
-            <span className="dot-separator">•</span>
-            <span className="cloud-status-badge" title={isSupabaseConfigured ? `Status: ${saveStatus}` : "Clique para conectar com Supabase"}>
-              {isSupabaseConfigured ? (
-                <Cloud size={14} />
-              ) : (
-                <button
-                  onClick={onOpenSupabaseConfig}
-                  className="btn-link-cloud"
-                  title="Clique para conectar com Supabase"
-                >
-                  <CloudOff size={14} />
-                </button>
-              )}
-            </span>
+            {!isSupabaseConfigured && (
+              <>
+                <span className="dot-separator">•</span>
+                <span className="cloud-status-badge">
+                  <button
+                    onClick={onOpenSupabaseConfig}
+                    className="btn-link-cloud"
+                    title="Clique para conectar com Supabase"
+                  >
+                    <CloudOff size={14} />
+                  </button>
+                </span>
+              </>
+            )}
           </div>
         </div>
       </div>
