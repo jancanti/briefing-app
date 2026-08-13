@@ -142,7 +142,13 @@ export default function ModuleForm({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
           <button
             type="button"
-            onClick={onPrevModule}
+            onClick={(e) => {
+              e.preventDefault();
+              onPrevModule();
+              window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+              document.documentElement.scrollTop = 0;
+              document.body.scrollTop = 0;
+            }}
             disabled={isFirstModule}
             className="btn-bw-secondary"
             style={{ visibility: isFirstModule ? 'hidden' : 'visible' }}
@@ -153,7 +159,13 @@ export default function ModuleForm({
 
           <button
             type="button"
-            onClick={onNextModule}
+            onClick={(e) => {
+              e.preventDefault();
+              onNextModule();
+              window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+              document.documentElement.scrollTop = 0;
+              document.body.scrollTop = 0;
+            }}
             className="btn-bw-primary"
           >
             <span>{isLastModule ? 'Concluir Briefing' : 'Próximo Módulo'}</span>

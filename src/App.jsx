@@ -294,10 +294,18 @@ export default function App() {
     setAnswers(prev => ({ ...prev, [key]: value }));
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    document.body.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
+
   const handleNextModule = () => {
     if (activeModuleIndex < BRIEFING_MODULES.length - 1) {
       setActiveModuleId(BRIEFING_MODULES[activeModuleIndex + 1].id);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTop();
     } else {
       showToastNotification('Parabéns! Você chegou ao final do briefing.', 'info');
     }
@@ -306,7 +314,7 @@ export default function App() {
   const handlePrevModule = () => {
     if (activeModuleIndex > 0) {
       setActiveModuleId(BRIEFING_MODULES[activeModuleIndex - 1].id);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTop();
     }
   };
 
