@@ -30,6 +30,10 @@ export default function AuthScreen({ onAuthSuccess }) {
 
   return (
     <div className="auth-screen-layout">
+      <div className="auth-top-owner">
+        Sistema de Briefings • Por Daniel Jançanti
+      </div>
+
       <div className="auth-screen-card">
         {/* Header */}
         <div className="auth-screen-brand">
@@ -98,6 +102,10 @@ export default function AuthScreen({ onAuthSuccess }) {
           </button>
         </form>
       </div>
+
+      <footer className="auth-footer-copyright">
+        Proibida cópia e reprodução
+      </footer>
     </div>
   );
 }
