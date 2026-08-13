@@ -100,6 +100,9 @@ export default function App() {
       if (isSupabaseConfigured && targetId) {
         const { data, error } = await getBriefingById(targetId);
         if (!error && data) {
+          if (!data.user_id || data.user_id !== currentUser.id) {
+            await saveBriefingToCloud(data.id, data.header_data || INITIAL_HEADER, data.answers || {}, currentUser.id);
+          }
           setBriefingId(targetId);
           setHeaderData(data.header_data || INITIAL_HEADER);
           setAnswers(data.answers || {});
@@ -110,7 +113,7 @@ export default function App() {
         }
       }
 
-      // 2. If no targetId or not found in cloud, search user's cloud briefings list (1 per user)
+      // 2. Search user's cloud briefings by user_id
       if (isSupabaseConfigured) {
         const { data: userBriefings } = await listAllBriefingsFromCloud(currentUser.id);
         if (userBriefings && userBriefings.length > 0) {
@@ -122,6 +125,32 @@ export default function App() {
           setIsCloudLoading(false);
           setDataLoaded(true);
           return;
+        }
+
+        // 2b. If no briefing found linked to user_id, search all cloud briefings to link existing briefing
+        const { data: allBriefings } = await listAllBriefingsFromCloud(null);
+        if (allBriefings && allBriefings.length > 0) {
+          const userEmail = currentUser.email?.toLowerCase();
+          let matched = allBriefings.find(b => 
+            b.header_data?.responsibleEmail?.toLowerCase() === userEmail
+          );
+
+          if (!matched) {
+            // Pick unlinked briefing or latest existing briefing in cloud
+            matched = allBriefings.find(b => !b.user_id) || allBriefings[0];
+          }
+
+          if (matched) {
+            // Auto-link this briefing to current user
+            await saveBriefingToCloud(matched.id, matched.header_data || INITIAL_HEADER, matched.answers || {}, currentUser.id);
+            setBriefingId(matched.id);
+            setHeaderData(matched.header_data || INITIAL_HEADER);
+            setAnswers(matched.answers || {});
+            setSaveStatus('Carregado da Nuvem');
+            setIsCloudLoading(false);
+            setDataLoaded(true);
+            return;
+          }
         }
       }
 

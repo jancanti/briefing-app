@@ -151,7 +151,7 @@ export default function AdminDashboardDrawer({
                   {b.clinic_name || 'Clínica Sem Nome'}
                 </h4>
                 <span className="card-item-id">
-                  ID: {b.id} {b.user_id ? `• User: ${b.user_id.substring(0, 8)}...` : ''}
+                  ID: {b.id} {b.header_data?.responsibleEmail ? `• Email: ${b.header_data.responsibleEmail}` : (b.user_id ? `• User: ${b.user_id.substring(0, 8)}...` : '')}
                 </span>
               </div>
               <span className="badge-count">
