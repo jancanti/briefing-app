@@ -63,6 +63,14 @@ export default function App() {
       if (user && isAdminUser(user)) {
         setIsAdminDashboardOpen(true);
       }
+      if (!user) {
+        setBriefingId('');
+        setHeaderData(INITIAL_HEADER);
+        setAnswers({});
+        if (window.location.search) {
+          window.history.pushState({}, '', window.location.pathname);
+        }
+      }
       setAuthInitialized(true);
     });
 
@@ -229,6 +237,12 @@ export default function App() {
     setCurrentUser(null);
     setDataLoaded(false);
     setAdminEditingClinicName(null);
+    setBriefingId('');
+    setHeaderData(INITIAL_HEADER);
+    setAnswers({});
+    if (window.location.search) {
+      window.history.pushState({}, '', window.location.pathname);
+    }
     showToastNotification('Você saiu da sua conta.', 'info');
   };
 

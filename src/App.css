@@ -806,8 +806,82 @@
 
 /* Mobile Responsive Adjustments */
 @media (max-width: 767px) {
+  .app-shell {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
   .app-header {
-    padding: 0 1rem;
+    height: auto;
+    min-height: 64px;
+    padding: 0.6rem 0.75rem;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .header-left {
+    gap: 0.45rem;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .header-right {
+    gap: 0.3rem;
+    flex-shrink: 0;
+  }
+
+  .header-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .header-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    line-height: 1.2;
+  }
+
+  .header-subtitle-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.08rem;
+    margin-top: 0.1rem;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .header-clinic-name {
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
+  }
+
+  .dot-separator {
+    display: none !important;
+  }
+
+  .cloud-status-badge {
+    font-size: 0.68rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: inline-flex;
   }
 
   .mobile-menu-btn {
@@ -819,15 +893,28 @@
   }
 
   .app-main {
-    padding: 1.25rem 1rem;
+    padding: 1.25rem 0.85rem;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   .hide-mobile {
     display: none !important;
   }
 
-  .header-title {
-    font-size: 0.95rem;
+  .user-profile-badge {
+    padding: 0.2rem 0.45rem;
+    max-width: 105px;
+    overflow: hidden;
+  }
+
+  .user-name {
+    max-width: 55px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.7rem;
   }
 
   /* Drawer Mobile: Fullscreen */
