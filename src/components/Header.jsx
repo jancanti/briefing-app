@@ -1,9 +1,5 @@
 import React from 'react';
 import { 
-  Sun, 
-  Moon, 
-  Share2,
-  FolderCheck,
   Cloud,
   CloudOff,
   User,
@@ -76,14 +72,6 @@ export default function Header({
               </button>
             </div>
           )}
-
-          <button 
-            onClick={toggleTheme} 
-            className="btn-icon-minimal"
-            title={theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}
-          >
-            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
-          </button>
         </div>
       </header>
     );
@@ -140,18 +128,16 @@ export default function Header({
               {headerData.clinicName || 'Nova Clínica de Estética'}
             </span>
             <span className="dot-separator">•</span>
-            <span className="cloud-status-badge">
+            <span className="cloud-status-badge" title={isSupabaseConfigured ? `Status: ${saveStatus}` : "Clique para conectar com Supabase"}>
               {isSupabaseConfigured ? (
-                <>
-                  <Cloud size={12} /> {saveStatus}
-                </>
+                <Cloud size={14} />
               ) : (
                 <button
                   onClick={onOpenSupabaseConfig}
                   className="btn-link-cloud"
                   title="Clique para conectar com Supabase"
                 >
-                  <CloudOff size={12} /> Configurar Nuvem
+                  <CloudOff size={14} />
                 </button>
               )}
             </span>
@@ -188,35 +174,6 @@ export default function Header({
             </button>
           </div>
         )}
-
-        {/* Meus Briefings Button */}
-        <button
-          onClick={onOpenDashboard}
-          className="btn-bw-secondary btn-sm"
-          title="Ver todos os seus briefings salvos"
-        >
-          <FolderCheck size={15} />
-          <span className="hide-mobile">Meus Briefings</span>
-        </button>
-
-        {/* Compartilhar Button */}
-        <button
-          onClick={onOpenShareModal}
-          className="btn-bw-secondary btn-sm"
-          title="Gerar link amigável para preenchimento"
-        >
-          <Share2 size={15} />
-          <span className="hide-mobile">Compartilhar</span>
-        </button>
-
-        {/* Theme Toggle */}
-        <button 
-          onClick={toggleTheme} 
-          className="btn-icon-minimal"
-          title={theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}
-        >
-          {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
-        </button>
       </div>
     </header>
   );
