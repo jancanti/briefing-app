@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { User, Lock, ArrowRight, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
+import { User, Lock, ArrowRight, AlertCircle, CheckCircle2, Sparkles, Eye, EyeOff } from 'lucide-react';
 import { signInWithUsername, signUpWithUsername } from '../services/authService';
 
 export default function AuthScreen({ onAuthSuccess }) {
   const [mode, setMode] = useState('login'); // 'login' | 'signup'
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -44,16 +45,15 @@ export default function AuthScreen({ onAuthSuccess }) {
   return (
     <div className="auth-screen-layout">
       <div className="auth-screen-card">
+        {/* Pure Luxury Brand Crest & Title */}
         <div className="auth-screen-brand">
-          <div className="auth-brand-logo">
-            <Sparkles size={20} />
+          <div className="auth-brand-crest">
+            <Sparkles size={22} />
           </div>
-          <div>
-            <h1 className="auth-brand-title">Briefing de Clínica</h1>
-            <p className="auth-brand-subtitle">Coletor de Estratégia e Posicionamento</p>
-          </div>
+          <h1 className="auth-brand-title">Briefing de Clínica</h1>
         </div>
 
+        {/* Tab Selector */}
         <div className="auth-screen-tabs" role="tablist">
           <button
             role="tab"
@@ -73,6 +73,7 @@ export default function AuthScreen({ onAuthSuccess }) {
           </button>
         </div>
 
+        {/* Alert Feedback */}
         {error && (
           <div className="auth-alert auth-alert-error" role="alert">
             <AlertCircle size={16} />
@@ -87,6 +88,7 @@ export default function AuthScreen({ onAuthSuccess }) {
           </div>
         )}
 
+        {/* Form Inputs */}
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="auth-field">
             <label htmlFor="auth-screen-username">Nome de Usuário</label>
@@ -112,13 +114,22 @@ export default function AuthScreen({ onAuthSuccess }) {
               <Lock size={16} className="input-icon" />
               <input
                 id="auth-screen-password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
               />
+              <button
+                type="button"
+                className="input-eye-btn"
+                onClick={() => setShowPassword(prev => !prev)}
+                title={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
           </div>
 
@@ -133,10 +144,6 @@ export default function AuthScreen({ onAuthSuccess }) {
             )}
           </button>
         </form>
-
-        <div className="auth-screen-footer">
-          <span>Seus briefings são salvos e isolados com segurança na nuvem.</span>
-        </div>
       </div>
     </div>
   );
