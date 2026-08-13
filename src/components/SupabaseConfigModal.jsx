@@ -1,11 +1,12 @@
 import React from 'react';
-import { X, Database, ExternalLink, Code2, CheckCircle2 } from 'lucide-react';
+import { X, Database, ExternalLink } from 'lucide-react';
 
 export default function SupabaseConfigModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   const sqlSchema = `create table if not exists briefings (
   id text primary key,
+  user_id uuid references auth.users(id) on delete cascade,
   clinic_name text default 'Nova Clínica',
   header_data jsonb default '{}'::jsonb,
   answers jsonb default '{}'::jsonb,
@@ -13,121 +14,95 @@ export default function SupabaseConfigModal({ isOpen, onClose }) {
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- Habilitar acesso público para leitura/escrita
+-- Habilitar Row Level Security (RLS)
 alter table briefings enable row level security;
 
-create policy "Permitir leitura pública" on briefings for select using (true);
-create policy "Permitir inserção pública" on briefings for insert with check (true);
-create policy "Permitir atualização pública" on briefings for update using (true);
-create policy "Permitir deleção pública" on briefings for delete using (true);`;
+create policy "Permissão de briefings por usuário" on briefings
+  for all using (auth.uid() = user_id or user_id is null);`;
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      backdropFilter: 'blur(4px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 9999,
-      padding: '1rem'
-    }}>
-      <div style={{
-        backgroundColor: 'var(--bg-card, #ffffff)',
-        color: 'var(--text-main, #1e293b)',
-        borderRadius: '16px',
-        padding: '1.75rem',
-        maxWidth: '620px',
-        width: '100%',
-        maxHeight: '90vh',
-        overflowY: 'auto',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-        border: '1px solid var(--border-delicate)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1.25rem'
-      }}>
+    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
+      <div className="auth-modal-content" style={{ maxWidth: '580px' }} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="auth-modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <div style={{ padding: '0.6rem', backgroundColor: 'rgba(56, 189, 248, 0.1)', borderRadius: '10px', color: '#0284c7' }}>
-              <Database size={20} />
+            <div style={{ padding: '0.5rem', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>
+              <Database size={18} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, fontFamily: 'var(--font-serif)', margin: 0 }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, letterSpacing: '-0.02em' }}>
                 Configuração do Supabase (Nuvem)
               </h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--espresso-muted)', margin: 0 }}>
-                Passo a passo para conectar seu banco de dados em 2 minutos
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>
+                Passo a passo para conectar seu banco de dados
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="btn btn-secondary btn-icon">
+          <button onClick={onClose} className="btn-icon-minimal">
             <X size={18} />
           </button>
         </div>
 
-        {/* Passo 1 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-          <h4 style={{ fontSize: '0.9rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--espresso-slate)', margin: 0 }}>
-            <span style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: 'var(--rose-dust)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>1</span>
-            Criar projeto no Supabase (Gratuito)
-          </h4>
-          <p style={{ fontSize: '0.825rem', color: 'var(--espresso-muted)', margin: 0 }}>
-            Acesse <a href="https://supabase.com" target="_blank" rel="noreferrer" style={{ color: 'var(--rose-dust)', textDecoration: 'underline' }}>supabase.com <ExternalLink size={12} style={{ display: 'inline' }} /></a>, faça login e crie um projeto novo gratuito.
-          </p>
-        </div>
+        <div className="auth-modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {/* Passo 1 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)', margin: 0 }}>
+              <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>1</span>
+              Criar projeto no Supabase (Gratuito)
+            </h4>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
+              Acesse <a href="https://supabase.com" target="_blank" rel="noreferrer" style={{ color: 'var(--text-primary)', fontWeight: 600, textDecoration: 'underline' }}>supabase.com <ExternalLink size={11} style={{ display: 'inline' }} /></a>, faça login e crie um projeto novo gratuito.
+            </p>
+          </div>
 
-        {/* Passo 2 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-          <h4 style={{ fontSize: '0.9rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--espresso-slate)', margin: 0 }}>
-            <span style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: 'var(--rose-dust)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>2</span>
-            Criar a tabela de Briefings (SQL)
-          </h4>
-          <p style={{ fontSize: '0.825rem', color: 'var(--espresso-muted)', margin: 0 }}>
-            No Supabase, vá na aba <strong>SQL Editor</strong>, cole o código abaixo e clique em <strong>RUN</strong>:
-          </p>
-          <pre style={{
-            backgroundColor: '#0f172a',
-            color: '#38bdf8',
-            padding: '0.85rem',
-            borderRadius: '8px',
-            fontSize: '0.75rem',
-            overflowX: 'auto',
-            fontFamily: 'monospace'
-          }}>
-            {sqlSchema}
-          </pre>
-        </div>
+          {/* Passo 2 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)', margin: 0 }}>
+              <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>2</span>
+              Criar a tabela de Briefings (SQL)
+            </h4>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
+              No Supabase, vá na aba <strong>SQL Editor</strong>, cole o código abaixo e clique em <strong>RUN</strong>:
+            </p>
+            <pre style={{
+              backgroundColor: 'var(--bg-secondary)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)',
+              padding: '0.75rem',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '0.75rem',
+              overflowX: 'auto',
+              fontFamily: 'monospace'
+            }}>
+              {sqlSchema}
+            </pre>
+          </div>
 
-        {/* Passo 3 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-          <h4 style={{ fontSize: '0.9rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--espresso-slate)', margin: 0 }}>
-            <span style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: 'var(--rose-dust)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>3</span>
-            Adicionar Variáveis de Ambiente no projeto
-          </h4>
-          <p style={{ fontSize: '0.825rem', color: 'var(--espresso-muted)', margin: 0 }}>
-            Vá em <strong>Project Settings ➔ API</strong> no Supabase, copie a URL e a chave anon/public, e adicione no seu arquivo <code>.env</code> (ou nas variáveis da Vercel):
-          </p>
-          <pre style={{
-            backgroundColor: 'var(--bg-subtle)',
-            border: '1px solid var(--border-delicate)',
-            padding: '0.75rem',
-            borderRadius: '8px',
-            fontSize: '0.8rem',
-            color: 'var(--text-main)',
-            fontFamily: 'monospace'
-          }}>
+          {/* Passo 3 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)', margin: 0 }}>
+              <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>3</span>
+              Adicionar Variáveis de Ambiente
+            </h4>
+            <pre style={{
+              backgroundColor: 'var(--bg-secondary)',
+              border: '1px solid var(--border-color)',
+              padding: '0.65rem',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '0.75rem',
+              color: 'var(--text-secondary)',
+              fontFamily: 'monospace'
+            }}>
 {`VITE_SUPABASE_URL=https://seu-projeto.supabase.co
 VITE_SUPABASE_ANON_KEY=sua-chave-anon-aqui`}
-          </pre>
-        </div>
+            </pre>
+          </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
-          <button onClick={onClose} className="btn btn-primary" style={{ padding: '0.6rem 1.2rem' }}>
-            Entendi!
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+            <button onClick={onClose} className="btn-bw-primary btn-sm">
+              Concluído
+            </button>
+          </div>
         </div>
       </div>
     </div>

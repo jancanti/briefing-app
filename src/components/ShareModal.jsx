@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { X, Copy, Check, Share2, MessageCircle, ExternalLink, Globe } from 'lucide-react';
+import { X, Copy, Check, Share2, MessageCircle, ExternalLink } from 'lucide-react';
 
 export default function ShareModal({ briefingId, clinicName, isOpen, onClose, showToastNotification }) {
   const [copied, setCopied] = useState(false);
 
   if (!isOpen) return null;
 
-  // URL amigável do briefing para o cliente
   const baseUrl = window.location.origin + window.location.pathname;
   const shareUrl = `${baseUrl}?id=${encodeURIComponent(briefingId)}`;
 
@@ -30,143 +29,97 @@ export default function ShareModal({ briefingId, clinicName, isOpen, onClose, sh
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      backdropFilter: 'blur(4px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 9999,
-      padding: '1rem'
-    }}>
-      <div style={{
-        backgroundColor: 'var(--bg-card, #ffffff)',
-        color: 'var(--text-main, #1e293b)',
-        borderRadius: '16px',
-        padding: '1.75rem',
-        maxWidth: '520px',
-        width: '100%',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-        border: '1px solid var(--border-delicate, #e2e8f0)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1.25rem',
-        animation: 'fadeIn 0.2s ease-out'
-      }}>
+    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
+      <div className="auth-modal-content" style={{ maxWidth: '520px' }} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="auth-modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <div style={{
-              padding: '0.6rem',
-              backgroundColor: 'rgba(235, 114, 155, 0.1)',
-              borderRadius: '10px',
-              color: 'var(--rose-dust, #eb729b)'
-            }}>
-              <Share2 size={20} />
+            <div style={{ padding: '0.5rem', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>
+              <Share2 size={18} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '700', fontFamily: 'var(--font-serif)' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, letterSpacing: '-0.02em' }}>
                 Enviar para a Cliente
               </h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--espresso-muted, #64748b)' }}>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>
                 {clinicName || 'Briefing sem nome'}
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="btn btn-secondary btn-icon"
-            style={{ borderRadius: '50%', padding: '0.4rem' }}
-          >
+          <button onClick={onClose} className="btn-icon-minimal">
             <X size={18} />
           </button>
         </div>
 
-        {/* Informação explicativa */}
-        <div style={{
-          backgroundColor: 'var(--bg-subtle, #f8fafc)',
-          padding: '1rem',
-          borderRadius: '12px',
-          border: '1px solid var(--border-delicate, #e2e8f0)',
-          fontSize: '0.875rem',
-          lineHeight: '1.4'
-        }}>
-          <p style={{ margin: 0, color: 'var(--espresso-slate, #334155)' }}>
-            ✨ <strong>Como funciona:</strong> Envie o link abaixo para sua cliente. As respostas que ela digitar serão salvas automaticamente na nuvem e você poderá ver todas de casa!
-          </p>
-        </div>
-
-        {/* Input de URL e Copiar */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-          <label style={{ fontSize: '0.78rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--espresso-muted)' }}>
-            Link Único do Briefing
-          </label>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <input
-              type="text"
-              readOnly
-              value={shareUrl}
-              style={{
-                flex: 1,
-                padding: '0.65rem 0.85rem',
-                borderRadius: '8px',
-                border: '1px solid var(--border-delicate)',
-                backgroundColor: 'var(--bg-main)',
-                color: 'var(--text-main)',
-                fontSize: '0.875rem',
-                fontFamily: 'monospace'
-              }}
-            />
-            <button
-              onClick={handleCopyLink}
-              className={`btn ${copied ? 'btn-primary' : 'btn-secondary'}`}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.65rem 1rem' }}
-            >
-              {copied ? <Check size={16} /> : <Copy size={16} />}
-              <span>{copied ? 'Copiado!' : 'Copiar'}</span>
-            </button>
+        <div className="auth-modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {/* Informação explicativa */}
+          <div style={{
+            backgroundColor: 'var(--bg-secondary)',
+            padding: '0.85rem 1rem',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--border-color)',
+            fontSize: '0.8rem',
+            lineHeight: '1.4',
+            color: 'var(--text-primary)'
+          }}>
+            <p style={{ margin: 0 }}>
+              <strong>Como funciona:</strong> Envie este link para sua cliente. As respostas preenchidas serão sincronizadas automaticamente na sua conta.
+            </p>
           </div>
-        </div>
 
-        {/* Botões de Ação Direta */}
-        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-          <button
-            onClick={handleWhatsAppShare}
-            className="btn"
-            style={{
-              flex: 1,
-              backgroundColor: '#25D366',
-              color: '#ffffff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              fontWeight: '600',
-              padding: '0.7rem'
-            }}
-          >
-            <MessageCircle size={18} />
-            Enviar via WhatsApp
-          </button>
+          {/* Input de URL e Copiar */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+            <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)' }}>
+              Link Único do Briefing
+            </label>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <input
+                type="text"
+                readOnly
+                value={shareUrl}
+                style={{
+                  flex: 1,
+                  padding: '0.6rem 0.85rem',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--bg-secondary)',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.8rem',
+                  fontFamily: 'monospace'
+                }}
+              />
+              <button
+                onClick={handleCopyLink}
+                className={copied ? 'btn-bw-primary btn-sm' : 'btn-bw-secondary btn-sm'}
+              >
+                {copied ? <Check size={14} /> : <Copy size={14} />}
+                <span>{copied ? 'Copiado!' : 'Copiar'}</span>
+              </button>
+            </div>
+          </div>
 
-          <a
-            href={shareUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-secondary"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.4rem',
-              padding: '0.7rem 1rem'
-            }}
-          >
-            <ExternalLink size={16} />
-            Testar Link
-          </a>
+          {/* Botões de Ação Direta */}
+          <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.5rem' }}>
+            <button
+              onClick={handleWhatsAppShare}
+              className="btn-bw-primary btn-sm"
+              style={{ flex: 1, padding: '0.65rem' }}
+            >
+              <MessageCircle size={16} />
+              <span>Enviar via WhatsApp</span>
+            </button>
+
+            <a
+              href={shareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-bw-secondary btn-sm"
+              style={{ padding: '0.65rem 1rem', textDecoration: 'none' }}
+            >
+              <ExternalLink size={15} />
+              <span>Abrir Link</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
