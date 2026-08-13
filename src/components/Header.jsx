@@ -1,8 +1,5 @@
 import React from 'react';
 import { 
-  Download, 
-  Copy, 
-  RotateCcw, 
   Sun, 
   Moon, 
   Share2,
@@ -11,37 +8,48 @@ import {
   CloudOff,
   User,
   LogOut,
-  Sparkles
+  Sparkles,
+  Menu,
+  ShieldCheck
 } from 'lucide-react';
 import { isSupabaseConfigured } from '../lib/supabase';
-import { getDisplayUsername } from '../services/authService';
+import { getDisplayUsername, isAdminUser } from '../services/authService';
 
 export default function Header({
   headerData,
   theme,
   toggleTheme,
   onReset,
-  onCopyMd,
-  onDownloadMd,
   saveStatus,
   progressPercentage,
   onOpenShareModal,
   onOpenDashboard,
+  onOpenAdminDashboard,
   onOpenSupabaseConfig,
   currentUser,
-  onOpenAuthModal,
-  onSignOut
+  onSignOut,
+  onToggleMobileMenu
 }) {
-  // SVG Radial Progress Ring Calculation
   const radius = 16;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progressPercentage / 100) * circumference;
 
   const displayUser = getDisplayUsername(currentUser);
+  const isAdmin = isAdminUser(currentUser);
 
   return (
     <header className="app-header">
       <div className="header-left">
+        {/* Mobile Navigation Menu Toggle */}
+        <button
+          onClick={onToggleMobileMenu}
+          className="btn-bw-secondary btn-sm mobile-menu-btn"
+          title="Ver Módulos do Briefing"
+        >
+          <Menu size={16} />
+          <span>Módulos</span>
+        </button>
+
         {/* Progress Ring */}
         <div className="progress-ring-box" title={`Progresso total: ${progressPercentage}%`}>
           <svg width="40" height="40" viewBox="0 0 40 40">
@@ -100,30 +108,33 @@ export default function Header({
       </div>
 
       <div className="header-right">
-        {/* User Account / Auth Section */}
-        {currentUser ? (
-          <div className="user-profile-badge">
-            <div className="user-avatar" title={`Conectado como @${displayUser}`}>
+        {/* Admin Dashboard Button (Only for jancanti@gmail.com) */}
+        {isAdmin && (
+          <button
+            onClick={onOpenAdminDashboard}
+            className="btn-bw-primary btn-sm"
+            title="Abrir Painel do Administrador (Global)"
+          >
+            <ShieldCheck size={15} />
+            <span>Painel Admin</span>
+          </button>
+        )}
+
+        {/* User Profile Badge */}
+        {currentUser && (
+          <div className="user-profile-badge" title={`Conectado como @${displayUser}`}>
+            <div className="user-avatar">
               <User size={14} />
             </div>
             <span className="user-name">@{displayUser}</span>
             <button
               onClick={onSignOut}
-              className="btn-icon-minimal"
+              className="btn-icon-minimal text-danger"
               title="Sair da conta"
             >
               <LogOut size={15} />
             </button>
           </div>
-        ) : (
-          <button
-            onClick={onOpenAuthModal}
-            className="btn-bw-outline btn-sm"
-            title="Fazer login ou cadastrar"
-          >
-            <User size={15} />
-            <span>Entrar / Cadastrar</span>
-          </button>
         )}
 
         {/* Meus Briefings Button */}
@@ -136,7 +147,7 @@ export default function Header({
           <span className="hide-mobile">Meus Briefings</span>
         </button>
 
-        {/* Compartilhar / Enviar para Cliente */}
+        {/* Compartilhar Button */}
         <button
           onClick={onOpenShareModal}
           className="btn-bw-secondary btn-sm"
@@ -153,35 +164,6 @@ export default function Header({
           title={theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}
         >
           {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
-        </button>
-
-        {/* Copiar .MD */}
-        <button 
-          onClick={onCopyMd} 
-          className="btn-bw-secondary btn-sm"
-          title="Copiar texto em formato Markdown"
-        >
-          <Copy size={15} />
-          <span className="hide-mobile">Copiar .MD</span>
-        </button>
-
-        {/* Baixar .MD */}
-        <button 
-          onClick={onDownloadMd} 
-          className="btn-bw-primary btn-sm"
-          title="Baixar documento .md"
-        >
-          <Download size={15} />
-          <span>Baixar .MD</span>
-        </button>
-
-        {/* Limpar / Reset */}
-        <button 
-          onClick={onReset} 
-          className="btn-icon-minimal text-danger"
-          title="Novo Briefing"
-        >
-          <RotateCcw size={15} />
         </button>
       </div>
     </header>

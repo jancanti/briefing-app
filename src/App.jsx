@@ -5,10 +5,11 @@ import ModuleForm from './components/ModuleForm';
 import ToastNotification from './components/ToastNotification';
 import ShareModal from './components/ShareModal';
 import BriefingsDashboardDrawer from './components/BriefingsDashboardDrawer';
+import AdminDashboardDrawer from './components/AdminDashboardDrawer';
 import SupabaseConfigModal from './components/SupabaseConfigModal';
-import AuthModal from './components/AuthModal';
+import AuthScreen from './components/AuthScreen';
 
-import { BRIEFING_MODULES, INITIAL_HEADER, generateMarkdown } from './data/briefingModules';
+import { BRIEFING_MODULES, INITIAL_HEADER } from './data/briefingModules';
 import { isSupabaseConfigured } from './lib/supabase';
 import { 
   generateBriefingId, 
@@ -17,20 +18,23 @@ import {
 } from './services/briefingService';
 import { onAuthStateChange, signOut, getCurrentUser } from './services/authService';
 
-const STORAGE_KEY = 'clinica_estetica_briefing_draft_v2';
+const STORAGE_KEY = 'clinica_estetica_briefing_draft_v3';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authInitialized, setAuthInitialized] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Listen to Auth State
   useEffect(() => {
     getCurrentUser().then(user => {
-      if (user) setCurrentUser(user);
+      setCurrentUser(user);
+      setAuthInitialized(true);
     });
 
     const { data: { subscription } } = onAuthStateChange((event, user) => {
       setCurrentUser(user);
+      setAuthInitialized(true);
     });
 
     return () => {
@@ -57,7 +61,7 @@ export default function App() {
 
   const [answers, setAnswers] = useState(() => {
     try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}__${userKeyPrefix}_answers_${briefingId}`);
+      const saved = localStorage.getItem(`${STORAGE_KEY}_${userKeyPrefix}_answers_${briefingId}`);
       return saved ? JSON.parse(saved) : {};
     } catch (e) {
       return {};
@@ -66,7 +70,6 @@ export default function App() {
 
   const [activeModuleId, setActiveModuleId] = useState(BRIEFING_MODULES[0].id);
   const [theme, setTheme] = useState(() => localStorage.getItem('app_theme') || 'light');
-  const [copied, setCopied] = useState(false);
   const [toast, setToast] = useState(null);
   const [saveStatus, setSaveStatus] = useState('Salvo localmente');
   const [isCloudLoading, setIsCloudLoading] = useState(false);
@@ -74,19 +77,21 @@ export default function App() {
   // Modais e Drawers
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+  const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
   const [isSupabaseConfigOpen, setIsSupabaseConfigOpen] = useState(false);
 
-  // Ref para debounce do Supabase
   const saveTimeoutRef = useRef(null);
 
-  // Sincronizar tema com o DOM
+  // Synchronize theme attribute
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('app_theme', theme);
   }, [theme]);
 
-  // Carregar dados da Nuvem se houver ID na URL
+  // Load cloud briefing when user logs in or URL changes
   useEffect(() => {
+    if (!currentUser) return;
+
     const urlParams = new URLSearchParams(window.location.search);
     const idFromUrl = urlParams.get('id');
 
@@ -112,9 +117,10 @@ export default function App() {
     }
   }, [currentUser]);
 
-  // Auto-save no LocalStorage + Supabase (Debounced)
+  // Debounced auto-save
   useEffect(() => {
-    // 1. LocalStorage
+    if (!currentUser) return;
+
     try {
       localStorage.setItem(`${STORAGE_KEY}_${userKeyPrefix}_active_id`, briefingId);
       localStorage.setItem(`${STORAGE_KEY}_${userKeyPrefix}_header_${briefingId}`, JSON.stringify(headerData));
@@ -123,7 +129,6 @@ export default function App() {
       console.error('Erro ao salvar localmente', e);
     }
 
-    // 2. Supabase
     if (isSupabaseConfigured) {
       setSaveStatus('Salvando...');
 
@@ -132,8 +137,7 @@ export default function App() {
       }
 
       saveTimeoutRef.current = setTimeout(async () => {
-        const userId = currentUser?.id || null;
-        const { error } = await saveBriefingToCloud(briefingId, headerData, answers, userId);
+        const { error } = await saveBriefingToCloud(briefingId, headerData, answers, currentUser.id);
         if (!error) {
           const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
           setSaveStatus(`Salvo na Nuvem (${time})`);
@@ -161,7 +165,6 @@ export default function App() {
     showToastNotification('Você saiu da sua conta.', 'info');
   };
 
-  // Alternar briefing ativo
   const handleSelectBriefing = async (newId) => {
     setBriefingId(newId);
     const newUrl = `${window.location.pathname}?id=${encodeURIComponent(newId)}`;
@@ -183,7 +186,6 @@ export default function App() {
     }
   };
 
-  // Criar um novo briefing
   const handleCreateNewBriefing = () => {
     const newId = generateBriefingId();
     setBriefingId(newId);
@@ -207,7 +209,7 @@ export default function App() {
       setActiveModuleId(BRIEFING_MODULES[activeModuleIndex + 1].id);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      showToastNotification('Fim do briefing! Clique em "Baixar .MD" para exportar.', 'info');
+      showToastNotification('Parabéns! Você chegou ao final do briefing.', 'info');
     }
   };
 
@@ -229,10 +231,6 @@ export default function App() {
     }
   };
 
-  const markdownContent = useMemo(() => {
-    return generateMarkdown(headerData, answers);
-  }, [headerData, answers]);
-
   const progressPercentage = useMemo(() => {
     const allQuestions = BRIEFING_MODULES.flatMap(m => m.questions);
     const totalCount = allQuestions.length;
@@ -240,36 +238,31 @@ export default function App() {
     return Math.round((answeredCount / totalCount) * 100);
   }, [answers]);
 
-  const handleCopyMd = async () => {
-    try {
-      await navigator.clipboard.writeText(markdownContent);
-      setCopied(true);
-      showToastNotification('Markdown copiado para a área de transferência!', 'success');
-      setTimeout(() => setCopied(false), 2500);
-    } catch (err) {
-      showToastNotification('Erro ao copiar texto', 'error');
-    }
-  };
-
-  const handleDownloadMd = () => {
-    const filename = headerData.clinicName
-      ? `briefing_${headerData.clinicName.toLowerCase().replace(/[^a-z0-9]/g, '_')}.md`
-      : `briefing_clinica_estetica_${headerData.date || 'data'}.md`;
-
-    const blob = new Blob([markdownContent], { type: 'text/markdown;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    showToastNotification(`Arquivo "${filename}" baixado!`, 'success');
-  };
-
   const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
 
+  // 1. Loading state while checking auth
+  if (!authInitialized) {
+    return (
+      <div className="auth-loading-screen">
+        <div className="spin-loader"></div>
+        <p>Carregando sistema...</p>
+      </div>
+    );
+  }
+
+  // 2. Auth Gate: Show full-screen Login Screen if not authenticated
+  if (!currentUser) {
+    return (
+      <AuthScreen 
+        onAuthSuccess={(user) => {
+          setCurrentUser(user);
+          showToastNotification(`Bem-vindo, @${user.user_metadata?.username || user.email?.split('@')[0]}!`, 'success');
+        }} 
+      />
+    );
+  }
+
+  // 3. Authenticated App Layout
   return (
     <div className="app-shell">
       <Header
@@ -278,16 +271,15 @@ export default function App() {
         theme={theme}
         toggleTheme={toggleTheme}
         onReset={handleReset}
-        onCopyMd={handleCopyMd}
-        onDownloadMd={handleDownloadMd}
         saveStatus={saveStatus}
         progressPercentage={progressPercentage}
         onOpenShareModal={() => setIsShareModalOpen(true)}
         onOpenDashboard={() => setIsDashboardOpen(true)}
+        onOpenAdminDashboard={() => setIsAdminDashboardOpen(true)}
         onOpenSupabaseConfig={() => setIsSupabaseConfigOpen(true)}
         currentUser={currentUser}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
         onSignOut={handleSignOut}
+        onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
       />
 
       <div className="app-container">
@@ -299,6 +291,8 @@ export default function App() {
           headerData={headerData}
           setHeaderData={setHeaderData}
           progressPercentage={progressPercentage}
+          isMobileMenuOpen={isMobileMenuOpen}
+          onCloseMobileMenu={() => setIsMobileMenuOpen(false)}
         />
 
         <main className="app-main">
@@ -321,15 +315,6 @@ export default function App() {
       </div>
 
       {/* Modais e Drawers */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onAuthSuccess={(user) => {
-          setCurrentUser(user);
-          showToastNotification(`Bem-vindo, @${user.user_metadata?.username || user.email?.split('@')[0]}!`, 'success');
-        }}
-      />
-
       <ShareModal
         briefingId={briefingId}
         clinicName={headerData.clinicName}
@@ -350,6 +335,12 @@ export default function App() {
         }}
         showToastNotification={showToastNotification}
         currentUser={currentUser}
+      />
+
+      <AdminDashboardDrawer
+        isOpen={isAdminDashboardOpen}
+        onClose={() => setIsAdminDashboardOpen(false)}
+        showToastNotification={showToastNotification}
       />
 
       <SupabaseConfigModal

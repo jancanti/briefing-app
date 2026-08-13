@@ -12,7 +12,8 @@ import {
   FileText,
   User,
   MapPin,
-  Calendar
+  Calendar,
+  X
 } from 'lucide-react';
 
 const ICON_MAP = {
@@ -33,25 +34,34 @@ export default function Sidebar({
   answers,
   headerData,
   setHeaderData,
-  progressPercentage
+  progressPercentage,
+  isMobileMenuOpen,
+  onCloseMobileMenu
 }) {
   const handleHeaderChange = (e) => {
     const { name, value } = e.target;
     setHeaderData(prev => ({ ...prev, [name]: value }));
   };
 
-  return (
-    <aside className="app-sidebar" style={{ width: '280px', borderRight: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column' }}>
+  const sidebarContent = (
+    <div className="sidebar-inner">
       {/* Clinic Header Metadata Form */}
-      <div style={{ padding: '1.5rem 1.25rem', borderBottom: '1px solid var(--border-color)' }}>
-        <h3 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '0.85rem' }}>
-          Identificação da Reunião
-        </h3>
+      <div className="sidebar-header-section">
+        <div className="sidebar-title-row">
+          <h3 className="sidebar-section-title">
+            Identificação da Reunião
+          </h3>
+          {isMobileMenuOpen && (
+            <button onClick={onCloseMobileMenu} className="btn-icon-minimal mobile-only">
+              <X size={18} />
+            </button>
+          )}
+        </div>
         
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div className="sidebar-fields-grid">
           <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.25rem' }}>
-              <Building2 size={13} style={{ color: 'var(--text-primary)' }} /> Nome da Clínica
+            <label className="sidebar-field-label">
+              <Building2 size={13} /> Nome da Clínica
             </label>
             <input
               type="text"
@@ -59,21 +69,13 @@ export default function Sidebar({
               value={headerData.clinicName}
               onChange={handleHeaderChange}
               placeholder="Ex: Lumina Estética"
-              style={{
-                width: '100%',
-                padding: '0.5rem 0.75rem',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--border-color)',
-                backgroundColor: 'var(--bg-primary)',
-                color: 'var(--text-primary)',
-                fontSize: '0.83rem'
-              }}
+              className="sidebar-input"
             />
           </div>
 
           <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.25rem' }}>
-              <User size={13} style={{ color: 'var(--text-primary)' }} /> Cliente / Responsável
+            <label className="sidebar-field-label">
+              <User size={13} /> Cliente / Responsável
             </label>
             <input
               type="text"
@@ -81,22 +83,14 @@ export default function Sidebar({
               value={headerData.clientName}
               onChange={handleHeaderChange}
               placeholder="Ex: Dra. Ana Beatriz"
-              style={{
-                width: '100%',
-                padding: '0.5rem 0.75rem',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--border-color)',
-                backgroundColor: 'var(--bg-primary)',
-                color: 'var(--text-primary)',
-                fontSize: '0.83rem'
-              }}
+              className="sidebar-input"
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+          <div className="sidebar-row-2col">
             <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.25rem' }}>
-                <MapPin size={13} style={{ color: 'var(--text-primary)' }} /> Cidade/UF
+              <label className="sidebar-field-label">
+                <MapPin size={13} /> Cidade/UF
               </label>
               <input
                 type="text"
@@ -104,70 +98,47 @@ export default function Sidebar({
                 value={headerData.cityState}
                 onChange={handleHeaderChange}
                 placeholder="São Paulo/SP"
-                style={{
-                  width: '100%',
-                  padding: '0.5rem 0.65rem',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-color)',
-                  backgroundColor: 'var(--bg-primary)',
-                  color: 'var(--text-primary)',
-                  fontSize: '0.82rem'
-                }}
+                className="sidebar-input"
               />
             </div>
 
             <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.25rem' }}>
-                <Calendar size={13} style={{ color: 'var(--text-primary)' }} /> Data
+              <label className="sidebar-field-label">
+                <Calendar size={13} /> Data
               </label>
               <input
                 type="date"
                 name="date"
                 value={headerData.date}
                 onChange={handleHeaderChange}
-                style={{
-                  width: '100%',
-                  padding: '0.5rem 0.5rem',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-color)',
-                  backgroundColor: 'var(--bg-primary)',
-                  color: 'var(--text-primary)',
-                  fontSize: '0.8rem'
-                }}
+                className="sidebar-input"
               />
             </div>
           </div>
         </div>
 
         {/* Global Progress Bar */}
-        <div style={{ marginTop: '1.25rem', paddingTop: '0.85rem', borderTop: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
+        <div className="sidebar-progress-section">
+          <div className="sidebar-progress-labels">
             <span>Preenchimento Global</span>
-            <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{progressPercentage}%</span>
+            <span className="sidebar-progress-pct">{progressPercentage}%</span>
           </div>
-          <div style={{ height: '4px', width: '100%', backgroundColor: 'var(--border-color)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
+          <div className="sidebar-progress-track">
             <div 
-              style={{ 
-                height: '100%', 
-                width: '100%', 
-                backgroundColor: 'var(--text-primary)',
-                borderRadius: 'var(--radius-full)',
-                transformOrigin: 'left',
-                transform: `scaleX(${progressPercentage / 100})`,
-                transition: 'transform 0.3s ease' 
-              }}
+              className="sidebar-progress-fill"
+              style={{ transform: `scaleX(${progressPercentage / 100})` }}
             />
           </div>
         </div>
       </div>
 
       {/* Module Navigation List */}
-      <div style={{ padding: '1rem 0.75rem', flex: 1, overflowY: 'auto' }}>
-        <h4 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', padding: '0 0.5rem', marginBottom: '0.5rem' }}>
+      <div className="sidebar-nav-section">
+        <h4 className="sidebar-nav-header">
           Módulos do Briefing
         </h4>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+        <div className="sidebar-modules-list">
           {modules.map((mod) => {
             const IconComponent = ICON_MAP[mod.icon] || FileText;
             const isSelected = activeModuleId === mod.id;
@@ -179,36 +150,24 @@ export default function Sidebar({
             return (
               <button
                 key={mod.id}
-                onClick={() => setActiveModuleId(mod.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  width: '100%',
-                  padding: '0.65rem 0.85rem',
-                  borderRadius: 'var(--radius-sm)',
-                  border: isSelected ? '1px solid var(--text-primary)' : '1px solid transparent',
-                  backgroundColor: isSelected ? 'var(--bg-primary)' : 'transparent',
-                  color: 'var(--text-primary)',
-                  fontWeight: isSelected ? 700 : 500,
-                  fontSize: '0.86rem',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'var(--transition-fast)'
+                onClick={() => {
+                  setActiveModuleId(mod.id);
+                  if (onCloseMobileMenu) onCloseMobileMenu();
                 }}
+                className={`sidebar-module-btn ${isSelected ? 'active' : ''}`}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                  <IconComponent size={16} style={{ color: isSelected ? 'var(--text-primary)' : 'var(--text-muted)' }} />
+                <div className="module-btn-label">
+                  <IconComponent size={16} />
                   <span>{mod.shortTitle}</span>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div className="module-btn-status">
                   {isComplete ? (
-                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '18px', height: '18px', borderRadius: '50%', backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)' }}>
+                    <span className="badge-complete">
                       <Check size={11} strokeWidth={3} />
                     </span>
                   ) : (
-                    <span style={{ fontSize: '0.7rem', padding: '0.15rem 0.45rem', borderRadius: 'var(--radius-full)', backgroundColor: isSelected ? 'var(--bg-secondary)' : 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-muted)', fontWeight: 600 }}>
+                    <span className="badge-count">
                       {answeredQ}/{totalQ}
                     </span>
                   )}
@@ -218,6 +177,24 @@ export default function Sidebar({
           })}
         </div>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Permanent Sticky Sidebar */}
+      <aside className="app-sidebar desktop-sidebar">
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile Navigation Drawer */}
+      {isMobileMenuOpen && (
+        <div className="drawer-backdrop mobile-drawer" onClick={onCloseMobileMenu}>
+          <div className="drawer-content mobile-sidebar-drawer" onClick={(e) => e.stopPropagation()}>
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

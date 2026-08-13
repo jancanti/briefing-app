@@ -136,3 +136,17 @@ export function onAuthStateChange(callback) {
     callback(event, session?.user || null);
   });
 }
+
+/**
+ * Verifica se o usuário autenticado é o administrador jancanti@gmail.com
+ */
+export function isAdminUser(user) {
+  if (!user) return false;
+  const username = (user.user_metadata?.username || '').toLowerCase().trim();
+  const email = (user.email || '').toLowerCase().trim();
+  return email === 'jancanti@gmail.com' ||
+         email === 'jancanti@gmail.com@briefing.app' ||
+         username === 'jancanti@gmail.com' ||
+         username === 'jancanti';
+}
+
