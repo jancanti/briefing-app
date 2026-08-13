@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-12T22:59:53Z",
+  "title": "Design System: Briefing de Clínica de Estética",
+  "extensions": {
+    "colorMeta": {
+      "primary": { "role": "primary", "displayName": "Obsidian Black", "canonical": "#09090B" },
+      "neutral-bg": { "role": "neutral", "displayName": "Pure White", "canonical": "#FFFFFF" },
+      "neutral-secondary": { "role": "neutral", "displayName": "Soft Zinc", "canonical": "#FAFAFA" },
+      "border": { "role": "neutral", "displayName": "Subtle Border", "canonical": "#E4E4E7" },
+      "text-muted": { "role": "neutral", "displayName": "Muted Text", "canonical": "#71717A" },
+      "danger": { "role": "danger", "displayName": "Crimson Red", "canonical": "#DC2626" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Main module titles and primary headings." },
+      "headline": { "displayName": "Headline", "purpose": "Card titles and screen headers." },
+      "title": { "displayName": "Title", "purpose": "App title and field labels." },
+      "body": { "displayName": "Body", "purpose": "Form questions and readable prose." },
+      "label": { "displayName": "Label", "purpose": "Meta tags and uppercase section labels." }
+    },
+    "shadows": [
+      { "name": "drawer", "value": "-10px 0 30px rgba(0,0,0,0.12)", "purpose": "Side drawers and overlay panels." }
+    ],
+    "motion": [
+      { "name": "ease-fast", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Quick state transitions and button hovers." }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "767px" },
+      { "name": "desktop", "value": "768px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Solid obsidian black button for primary actions.",
+      "html": "<button class=\"ds-btn-primary\">CONCLUIR MÓDULO</button>",
+      "css": ".ds-btn-primary { background: #09090b; color: #ffffff; padding: 8px 16px; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 14px; border: 1px solid #09090b; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; } .ds-btn-primary:hover { background: transparent; color: #09090b; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Light gray secondary button for navigation and filters.",
+      "html": "<button class=\"ds-btn-secondary\">ANTERIOR</button>",
+      "css": ".ds-btn-secondary { background: #fafafa; color: #09090b; padding: 8px 16px; font-family: 'Inter', sans-serif; font-weight: 500; font-size: 14px; border: 1px solid #e4e4e7; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; } .ds-btn-secondary:hover { border-color: #09090b; background: #f4f4f5; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Monochromatic Sanctuary",
+    "overview": "A high-contrast, editorial black-and-white design system tailored for aesthetic clinic intake and strategy.",
+    "keyCharacteristics": [
+      "Pure Monochromatic Contrast",
+      "Unified Inter Typography",
+      "Stark Geometric Precision",
+      "Distraction-Free Intake"
+    ],
+    "rules": [
+      { "name": "The Monochromatic Principle", "body": "Colored backgrounds and decorative gradients are forbidden.", "section": "colors" },
+      { "name": "The Single Face Rule", "body": "Inter is the exclusive typeface for all UI components.", "section": "typography" },
+      { "name": "The Border-Over-Shadow Rule", "body": "Containers use 1px solid borders for visual definition rather than ambient box-shadows.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do maintain strict WCAG AAA contrast ratios using #09090B on #FFFFFF.",
+      "Do use Inter for all typography without exception."
+    ],
+    "donts": [
+      "Don't use colored gradients, pastel fills, or shadow overlays.",
+      "Don't introduce secondary serif or handwritten font families."
+    ]
+  }
+}
