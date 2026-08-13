@@ -31,6 +31,7 @@ export default function Sidebar({
   modules,
   activeModuleId,
   setActiveModuleId,
+  onSelectModule,
   answers,
   headerData,
   setHeaderData,
@@ -151,7 +152,11 @@ export default function Sidebar({
               <button
                 key={mod.id}
                 onClick={() => {
-                  setActiveModuleId(mod.id);
+                  if (onSelectModule) {
+                    onSelectModule(mod.id);
+                  } else {
+                    setActiveModuleId(mod.id);
+                  }
                   if (onCloseMobileMenu) onCloseMobileMenu();
                 }}
                 className={`sidebar-module-btn ${isSelected ? 'active' : ''}`}

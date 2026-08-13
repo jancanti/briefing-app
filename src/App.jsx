@@ -305,11 +305,22 @@ export default function App() {
   };
 
   const scrollToTop = () => {
-    try {
-      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-    } catch (e) {
-      window.scrollTo(0, 0);
+    if (document.activeElement && document.activeElement !== document.body) {
+      document.activeElement.blur();
     }
+    const scrollOptions = { top: 0, left: 0, behavior: 'smooth' };
+    window.scrollTo(scrollOptions);
+    try {
+      document.documentElement.scrollTo(scrollOptions);
+    } catch (e) {}
+    try {
+      document.body.scrollTo(scrollOptions);
+    } catch (e) {}
+  };
+
+  const handleSelectModule = (moduleId) => {
+    setActiveModuleId(moduleId);
+    scrollToTop();
   };
 
   // Auto-scroll to top smoothly whenever active module changes
@@ -319,15 +330,12 @@ export default function App() {
       isInitialMount.current = false;
       return;
     }
-    const timer = setTimeout(() => {
-      scrollToTop();
-    }, 40);
-    return () => clearTimeout(timer);
+    scrollToTop();
   }, [activeModuleId]);
 
   const handleNextModule = () => {
     if (activeModuleIndex < BRIEFING_MODULES.length - 1) {
-      setActiveModuleId(BRIEFING_MODULES[activeModuleIndex + 1].id);
+      handleSelectModule(BRIEFING_MODULES[activeModuleIndex + 1].id);
     } else {
       showToastNotification('Parabéns! Você chegou ao final do briefing.', 'info');
     }
@@ -335,7 +343,7 @@ export default function App() {
 
   const handlePrevModule = () => {
     if (activeModuleIndex > 0) {
-      setActiveModuleId(BRIEFING_MODULES[activeModuleIndex - 1].id);
+      handleSelectModule(BRIEFING_MODULES[activeModuleIndex - 1].id);
     }
   };
 
@@ -449,6 +457,7 @@ export default function App() {
           modules={BRIEFING_MODULES}
           activeModuleId={activeModuleId}
           setActiveModuleId={setActiveModuleId}
+          onSelectModule={handleSelectModule}
           answers={answers}
           headerData={headerData}
           setHeaderData={setHeaderData}
