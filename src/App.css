@@ -366,16 +366,16 @@
   align-items: center;
   justify-content: center;
   background-color: var(--bg-primary);
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
 }
 
 .auth-screen-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 2.25rem;
+  padding: 3rem 2.5rem;
   box-shadow: var(--shadow-lg);
 }
 
@@ -384,31 +384,26 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
-}
-
-.auth-brand-crest {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background-color: var(--text-primary);
-  color: var(--bg-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2.25rem;
 }
 
 .auth-brand-title {
-  font-size: 1.35rem;
+  font-size: 2.25rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: var(--text-primary);
+}
+
+.auth-brand-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
 }
 
 .input-eye-btn {
   position: absolute;
-  right: 0.75rem;
+  right: 0.85rem;
   background: transparent;
   border: none;
   color: var(--text-muted);
