@@ -237,12 +237,20 @@ export default function App() {
     };
   }, [briefingId, headerData, answers, currentUser, dataLoaded]);
 
+  const clearPendingSave = () => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = null;
+    }
+  };
+
   const showToastNotification = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
 
   const handleSignOut = async () => {
+    clearPendingSave();
     await signOut();
     setCurrentUser(null);
     setDataLoaded(false);
@@ -257,6 +265,7 @@ export default function App() {
   };
 
   const handleSelectBriefing = async (newId) => {
+    clearPendingSave();
     setBriefingId(newId);
     const newUrl = `${window.location.pathname}?id=${encodeURIComponent(newId)}`;
     window.history.pushState({ path: newUrl }, '', newUrl);
@@ -278,6 +287,7 @@ export default function App() {
   };
 
   const handleAdminEditBriefing = (briefing) => {
+    clearPendingSave();
     setBriefingId(briefing.id);
     setHeaderData(briefing.header_data || INITIAL_HEADER);
     setAnswers(briefing.answers || {});
@@ -287,6 +297,7 @@ export default function App() {
   };
 
   const handleCreateNewBriefing = () => {
+    clearPendingSave();
     const newId = generateBriefingId();
     setBriefingId(newId);
     setHeaderData(INITIAL_HEADER);

@@ -25,7 +25,10 @@ export default function AdminDashboardDrawer({
       setBriefings(data);
     } else if (error) {
       if (showToastNotification) {
-        showToastNotification('Erro ao carregar briefings no Painel Admin', 'error');
+        const msg = error.code === '42501' || error.message?.includes('policy')
+          ? 'Permissão negada (RLS). Execute a política SQL no Supabase'
+          : 'Erro ao carregar briefings no Painel Admin';
+        showToastNotification(msg, 'error');
       }
     }
     setLoading(false);

@@ -736,9 +736,9 @@
 }
 
 .input-with-icon input:focus {
-  background-color: #ffffff;
-  border-color: var(--text-primary, #09090b);
-  box-shadow: 0 0 0 2px var(--text-primary, #09090b);
+  background-color: var(--bg-primary);
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 2px var(--text-primary);
 }
 
 .input-with-icon:focus-within .input-icon {

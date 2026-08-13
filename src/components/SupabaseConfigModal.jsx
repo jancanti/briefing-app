@@ -17,8 +17,8 @@ export default function SupabaseConfigModal({ isOpen, onClose }) {
 -- Habilitar Row Level Security (RLS)
 alter table briefings enable row level security;
 
-create policy "Permissão de briefings por usuário" on briefings
-  for all using (auth.uid() = user_id or user_id is null);`;
+create policy "Permissão de briefings para autenticados" on briefings
+  for all using (auth.role() = 'authenticated');`;
 
   return (
     <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
