@@ -17,6 +17,30 @@ export function generateBriefingId(clinicName = '') {
 }
 
 /**
+ * Busca o briefing único do usuário no Supabase (o mais recente)
+ */
+export async function getBriefingForUser(userId) {
+  if (!isSupabaseConfigured || !supabase || !userId) {
+    return { data: null, error: new Error('Supabase não configurado ou userId ausente') };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('briefings')
+      .select('*')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false })
+      .limit(1);
+
+    if (error) throw error;
+    return { data: data && data.length > 0 ? data[0] : null, error: null };
+  } catch (err) {
+    console.error('Erro ao buscar briefing do usuário:', err);
+    return { data: null, error: err };
+  }
+}
+
+/**
  * Busca um briefing pelo ID no Supabase
  */
 export async function getBriefingById(id) {

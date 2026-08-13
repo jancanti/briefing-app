@@ -28,7 +28,9 @@ export default function Header({
   onOpenSupabaseConfig,
   currentUser,
   onSignOut,
-  onToggleMobileMenu
+  onToggleMobileMenu,
+  isAdminView = false,
+  onCloseAdminView
 }) {
   const radius = 16;
   const circumference = 2 * Math.PI * radius;
@@ -36,6 +38,56 @@ export default function Header({
 
   const displayUser = getDisplayUsername(currentUser);
   const isAdmin = isAdminUser(currentUser);
+
+  if (isAdminView) {
+    return (
+      <header className="app-header">
+        <div className="header-left">
+          <div className="drawer-title-group">
+            <ShieldCheck size={22} className="text-primary" />
+            <div>
+              <h1 className="header-title">Painel do Administrador</h1>
+              <p className="drawer-subtitle">Visão global dos briefings preenchidos pelos clientes</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="header-right">
+          <button
+            onClick={onCloseAdminView}
+            className="btn-bw-secondary btn-sm"
+            title="Voltar ao Formulário de Briefing"
+          >
+            ← Voltar ao Briefing
+          </button>
+
+          {currentUser && (
+            <div className="user-profile-badge" title={`Conectado como @${displayUser}`}>
+              <div className="user-avatar">
+                <User size={14} />
+              </div>
+              <span className="user-name">@{displayUser}</span>
+              <button
+                onClick={onSignOut}
+                className="btn-icon-minimal text-danger"
+                title="Sair da conta"
+              >
+                <LogOut size={15} />
+              </button>
+            </div>
+          )}
+
+          <button 
+            onClick={toggleTheme} 
+            className="btn-icon-minimal"
+            title={theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}
+          >
+            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+          </button>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="app-header">

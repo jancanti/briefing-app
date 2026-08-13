@@ -31,15 +31,15 @@ export default function AuthScreen({ onAuthSuccess }) {
   return (
     <div className="auth-screen-layout">
       <div className="auth-screen-card">
-        {/* Header matching reference image */}
+        {/* Header */}
         <div className="auth-screen-brand">
-          <h1 className="auth-brand-title">Login</h1>
+          <h1 className="auth-brand-title">Briefing do site</h1>
           <p className="auth-brand-subtitle">
-            Informe seus dados para acessar sua conta
+            Digite seu e-mail e senha para fazer seu briefing
           </p>
         </div>
 
-        {/* Error Feedback */}
+        {/* Feedback Messages */}
         {error && (
           <div className="auth-alert auth-alert-error" role="alert">
             <AlertCircle size={16} />
@@ -47,15 +47,15 @@ export default function AuthScreen({ onAuthSuccess }) {
           </div>
         )}
 
-        {/* Login Form */}
+        {/* Form */}
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="auth-field">
             <div className="input-with-icon">
               <User size={18} className="input-icon" />
               <input
                 id="auth-screen-username"
-                type="text"
-                placeholder="Informe seu nome de usuário"
+                type="email"
+                placeholder="Digite seu e-mail cadastrado"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -72,7 +72,7 @@ export default function AuthScreen({ onAuthSuccess }) {
               <input
                 id="auth-screen-password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Informe sua senha"
+                placeholder="Digite sua senha"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -80,7 +80,7 @@ export default function AuthScreen({ onAuthSuccess }) {
               <button
                 type="button"
                 className="input-eye-btn"
-                onClick={() => setShowPassword(prev => !prev)}
+                onClick={() => setShowPassword((prev) => !prev)}
                 title={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                 aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
               >
@@ -89,7 +89,11 @@ export default function AuthScreen({ onAuthSuccess }) {
             </div>
           </div>
 
-          <button type="submit" className="btn-bw-primary btn-full" disabled={loading}>
+          <button
+            type="submit"
+            className="btn-auth-primary"
+            disabled={loading}
+          >
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
@@ -97,3 +101,5 @@ export default function AuthScreen({ onAuthSuccess }) {
     </div>
   );
 }
+
+

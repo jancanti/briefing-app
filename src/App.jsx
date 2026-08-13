@@ -8,65 +8,31 @@ import BriefingsDashboardDrawer from './components/BriefingsDashboardDrawer';
 import AdminDashboardDrawer from './components/AdminDashboardDrawer';
 import SupabaseConfigModal from './components/SupabaseConfigModal';
 import AuthScreen from './components/AuthScreen';
+import './App.css';
 
 import { BRIEFING_MODULES, INITIAL_HEADER } from './data/briefingModules';
 import { isSupabaseConfigured } from './lib/supabase';
 import { 
   generateBriefingId, 
   getBriefingById, 
-  saveBriefingToCloud 
+  saveBriefingToCloud,
+  listAllBriefingsFromCloud
 } from './services/briefingService';
-import { onAuthStateChange, signOut, getCurrentUser } from './services/authService';
+import { onAuthStateChange, signOut, getCurrentUser, isAdminUser } from './services/authService';
 
 const STORAGE_KEY = 'clinica_estetica_briefing_draft_v3';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [authInitialized, setAuthInitialized] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [adminEditingClinicName, setAdminEditingClinicName] = useState(null);
 
-  // Listen to Auth State
-  useEffect(() => {
-    getCurrentUser().then(user => {
-      setCurrentUser(user);
-      setAuthInitialized(true);
-    });
-
-    const { data: { subscription } } = onAuthStateChange((event, user) => {
-      setCurrentUser(user);
-      setAuthInitialized(true);
-    });
-
-    return () => {
-      if (subscription) subscription.unsubscribe();
-    };
-  }, []);
-
-  const userKeyPrefix = currentUser?.id ? `user_${currentUser.id}` : 'guest';
-
-  // Active briefing ID
-  const [briefingId, setBriefingId] = useState(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('id') || localStorage.getItem(`${STORAGE_KEY}_${userKeyPrefix}_active_id`) || generateBriefingId();
-  });
-
-  const [headerData, setHeaderData] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_${userKeyPrefix}_header_${briefingId}`);
-      return saved ? JSON.parse(saved) : INITIAL_HEADER;
-    } catch (e) {
-      return INITIAL_HEADER;
-    }
-  });
-
-  const [answers, setAnswers] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_${userKeyPrefix}_answers_${briefingId}`);
-      return saved ? JSON.parse(saved) : {};
-    } catch (e) {
-      return {};
-    }
-  });
+  // Active briefing state
+  const [briefingId, setBriefingId] = useState('');
+  const [headerData, setHeaderData] = useState(INITIAL_HEADER);
+  const [answers, setAnswers] = useState({});
 
   const [activeModuleId, setActiveModuleId] = useState(BRIEFING_MODULES[0].id);
   const [theme, setTheme] = useState(() => localStorage.getItem('app_theme') || 'light');
@@ -82,44 +48,114 @@ export default function App() {
 
   const saveTimeoutRef = useRef(null);
 
+  // Listen to Auth State
+  useEffect(() => {
+    getCurrentUser().then(user => {
+      setCurrentUser(user);
+      if (user && isAdminUser(user)) {
+        setIsAdminDashboardOpen(true);
+      }
+      setAuthInitialized(true);
+    });
+
+    const { data: { subscription } } = onAuthStateChange((event, user) => {
+      setCurrentUser(user);
+      if (user && isAdminUser(user)) {
+        setIsAdminDashboardOpen(true);
+      }
+      setAuthInitialized(true);
+    });
+
+    return () => {
+      if (subscription) subscription.unsubscribe();
+    };
+  }, []);
+
+  const userKeyPrefix = currentUser?.id ? `user_${currentUser.id}` : 'guest';
+
   // Synchronize theme attribute
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('app_theme', theme);
   }, [theme]);
 
-  // Load cloud briefing when user logs in or URL changes
+  // Load briefing data safely after user is authenticated
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      setDataLoaded(false);
+      return;
+    }
 
+    const prefix = `user_${currentUser.id}`;
     const urlParams = new URLSearchParams(window.location.search);
     const idFromUrl = urlParams.get('id');
 
-    if (idFromUrl) {
-      setBriefingId(idFromUrl);
-      localStorage.setItem(`${STORAGE_KEY}_${userKeyPrefix}_active_id`, idFromUrl);
+    const initializeUserBriefing = async () => {
+      setIsCloudLoading(true);
+      setSaveStatus('Buscando da nuvem...');
 
-      if (isSupabaseConfigured) {
-        setIsCloudLoading(true);
-        setSaveStatus('Buscando da nuvem...');
+      let targetId = idFromUrl || localStorage.getItem(`${STORAGE_KEY}_${prefix}_active_id`);
 
-        getBriefingById(idFromUrl).then(({ data, error }) => {
-          if (!error && data) {
-            if (data.header_data) setHeaderData(data.header_data);
-            if (data.answers) setAnswers(data.answers);
-            setSaveStatus('Carregado da Nuvem');
-          } else if (error) {
-            setSaveStatus('Erro ao carregar');
-          }
+      // 1. Try loading specific briefing if targetId exists
+      if (isSupabaseConfigured && targetId) {
+        const { data, error } = await getBriefingById(targetId);
+        if (!error && data) {
+          setBriefingId(targetId);
+          setHeaderData(data.header_data || INITIAL_HEADER);
+          setAnswers(data.answers || {});
+          setSaveStatus('Carregado da Nuvem');
           setIsCloudLoading(false);
-        });
+          setDataLoaded(true);
+          return;
+        }
       }
-    }
+
+      // 2. If no targetId or not found in cloud, search user's cloud briefings list (1 per user)
+      if (isSupabaseConfigured) {
+        const { data: userBriefings } = await listAllBriefingsFromCloud(currentUser.id);
+        if (userBriefings && userBriefings.length > 0) {
+          const latest = userBriefings[0];
+          setBriefingId(latest.id);
+          setHeaderData(latest.header_data || INITIAL_HEADER);
+          setAnswers(latest.answers || {});
+          setSaveStatus('Carregado da Nuvem');
+          setIsCloudLoading(false);
+          setDataLoaded(true);
+          return;
+        }
+      }
+
+      // 3. Fallback: try localStorage for prefix
+      if (targetId) {
+        setBriefingId(targetId);
+        try {
+          const localHeader = localStorage.getItem(`${STORAGE_KEY}_${prefix}_header_${targetId}`);
+          const localAnswers = localStorage.getItem(`${STORAGE_KEY}_${prefix}_answers_${targetId}`);
+          if (localHeader) setHeaderData(JSON.parse(localHeader));
+          if (localAnswers) setAnswers(JSON.parse(localAnswers));
+        } catch (e) {
+          setHeaderData(INITIAL_HEADER);
+          setAnswers({});
+        }
+      } else {
+        // Fresh new briefing ID for brand new user
+        const newId = generateBriefingId();
+        setBriefingId(newId);
+        setHeaderData(INITIAL_HEADER);
+        setAnswers({});
+      }
+
+      setSaveStatus('Salvo localmente');
+      setIsCloudLoading(false);
+      setDataLoaded(true);
+    };
+
+    initializeUserBriefing();
   }, [currentUser]);
 
-  // Debounced auto-save
+  // Debounced auto-save (ONLY when user is logged in AND initial data load completed)
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser || !dataLoaded || !briefingId) return;
 
     try {
       localStorage.setItem(`${STORAGE_KEY}_${userKeyPrefix}_active_id`, briefingId);
@@ -152,7 +188,7 @@ export default function App() {
     return () => {
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     };
-  }, [briefingId, headerData, answers, currentUser]);
+  }, [briefingId, headerData, answers, currentUser, dataLoaded]);
 
   const showToastNotification = (message, type = 'success') => {
     setToast({ message, type });
@@ -162,6 +198,8 @@ export default function App() {
   const handleSignOut = async () => {
     await signOut();
     setCurrentUser(null);
+    setDataLoaded(false);
+    setAdminEditingClinicName(null);
     showToastNotification('Você saiu da sua conta.', 'info');
   };
 
@@ -184,6 +222,15 @@ export default function App() {
       setHeaderData(localHeader ? JSON.parse(localHeader) : INITIAL_HEADER);
       setAnswers(localAnswers ? JSON.parse(localAnswers) : {});
     }
+  };
+
+  const handleAdminEditBriefing = (briefing) => {
+    setBriefingId(briefing.id);
+    setHeaderData(briefing.header_data || INITIAL_HEADER);
+    setAnswers(briefing.answers || {});
+    setAdminEditingClinicName(briefing.clinic_name || 'Clínica');
+    setIsAdminDashboardOpen(false);
+    showToastNotification(`Editando briefing da clínica "${briefing.clinic_name}"`, 'info');
   };
 
   const handleCreateNewBriefing = () => {
@@ -256,13 +303,47 @@ export default function App() {
       <AuthScreen 
         onAuthSuccess={(user) => {
           setCurrentUser(user);
+          if (isAdminUser(user)) {
+            setIsAdminDashboardOpen(true);
+          }
           showToastNotification(`Bem-vindo, @${user.user_metadata?.username || user.email?.split('@')[0]}!`, 'success');
         }} 
       />
     );
   }
 
-  // 3. Authenticated App Layout
+  // 3. Admin Standalone Full-Page View (Option A)
+  if (isAdminDashboardOpen) {
+    return (
+      <div className="app-shell">
+        <Header
+          headerData={headerData}
+          setHeaderData={setHeaderData}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          onReset={handleReset}
+          saveStatus={saveStatus}
+          progressPercentage={progressPercentage}
+          currentUser={currentUser}
+          onSignOut={handleSignOut}
+          isAdminView={true}
+          onCloseAdminView={() => setIsAdminDashboardOpen(false)}
+        />
+
+        <AdminDashboardDrawer
+          isOpen={true}
+          onClose={() => setIsAdminDashboardOpen(false)}
+          showToastNotification={showToastNotification}
+          isFullPage={true}
+          onEditBriefing={handleAdminEditBriefing}
+        />
+
+        <ToastNotification toast={toast} />
+      </div>
+    );
+  }
+
+  // 4. Authenticated App Layout (Briefing Collector)
   return (
     <div className="app-shell">
       <Header
@@ -282,6 +363,15 @@ export default function App() {
         onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
       />
 
+      {adminEditingClinicName && (
+        <div className="admin-editing-banner">
+          <span>✏️ <strong>Modo Administrador:</strong> Editando briefing da clínica <strong>"{adminEditingClinicName}"</strong></span>
+          <button onClick={() => setIsAdminDashboardOpen(true)} className="btn-bw-secondary btn-xs">
+            ← Voltar à Lista Admin
+          </button>
+        </div>
+      )}
+
       <div className="app-container">
         <Sidebar
           modules={BRIEFING_MODULES}
@@ -296,7 +386,7 @@ export default function App() {
         />
 
         <main className="app-main">
-          {isCloudLoading ? (
+          {isCloudLoading || !dataLoaded ? (
             <div className="cloud-loading-container">
               <h3>Carregando briefing da nuvem...</h3>
             </div>
@@ -335,12 +425,6 @@ export default function App() {
         }}
         showToastNotification={showToastNotification}
         currentUser={currentUser}
-      />
-
-      <AdminDashboardDrawer
-        isOpen={isAdminDashboardOpen}
-        onClose={() => setIsAdminDashboardOpen(false)}
-        showToastNotification={showToastNotification}
       />
 
       <SupabaseConfigModal

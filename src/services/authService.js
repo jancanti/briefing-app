@@ -5,8 +5,12 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
  */
 export function usernameToEmail(username) {
   if (!username) return '';
-  const clean = username.toLowerCase().trim().replace(/[^a-z0-9_.-]/g, '');
-  return `${clean}@briefing.app`;
+  const clean = username.trim();
+  if (clean.includes('@')) {
+    return clean;
+  }
+  const cleanUser = clean.toLowerCase().replace(/[^a-z0-9_.-]/g, '');
+  return `${cleanUser}@briefing.app`;
 }
 
 /**
