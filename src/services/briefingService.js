@@ -40,9 +40,9 @@ export async function getBriefingById(id) {
 }
 
 /**
- * Salva ou atualiza um briefing no Supabase (Upsert)
+ * Salva ou atualiza um briefing no Supabase (Upsert) vinculado ao usuário
  */
-export async function saveBriefingToCloud(id, headerData, answers) {
+export async function saveBriefingToCloud(id, headerData, answers, userId = null) {
   if (!isSupabaseConfigured || !supabase) {
     return { data: null, error: new Error('Supabase não configurado') };
   }
@@ -57,6 +57,10 @@ export async function saveBriefingToCloud(id, headerData, answers) {
       answers: answers,
       updated_at: new Date().toISOString(),
     };
+
+    if (userId) {
+      payload.user_id = userId;
+    }
 
     const { data, error } = await supabase
       .from('briefings')
@@ -73,21 +77,27 @@ export async function saveBriefingToCloud(id, headerData, answers) {
 }
 
 /**
- * Lista todos os briefings salvos (para o painel admin)
+ * Lista todos os briefings salvos pertencentes ao usuário logado
  */
-export async function listAllBriefingsFromCloud() {
+export async function listAllBriefingsFromCloud(userId = null) {
   if (!isSupabaseConfigured || !supabase) {
     return { data: [], error: new Error('Supabase não configurado') };
   }
 
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('briefings')
-      .select('id, clinic_name, updated_at, created_at, header_data, answers')
+      .select('id, clinic_name, updated_at, created_at, header_data, answers, user_id')
       .order('updated_at', { ascending: false });
 
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
+
+    const { data, error } = await query;
+
     if (error) throw error;
-    return { data, error: null };
+    return { data: data || [], error: null };
   } catch (err) {
     console.error('Erro ao listar briefings:', err);
     return { data: [], error: err };

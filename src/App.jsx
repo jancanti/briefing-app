@@ -2,11 +2,11 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import ModuleForm from './components/ModuleForm';
-import MarkdownPreviewDrawer from './components/MarkdownPreviewDrawer';
 import ToastNotification from './components/ToastNotification';
 import ShareModal from './components/ShareModal';
 import BriefingsDashboardDrawer from './components/BriefingsDashboardDrawer';
 import SupabaseConfigModal from './components/SupabaseConfigModal';
+import AuthModal from './components/AuthModal';
 
 import { BRIEFING_MODULES, INITIAL_HEADER, generateMarkdown } from './data/briefingModules';
 import { isSupabaseConfigured } from './lib/supabase';
@@ -15,19 +15,40 @@ import {
   getBriefingById, 
   saveBriefingToCloud 
 } from './services/briefingService';
+import { onAuthStateChange, signOut, getCurrentUser } from './services/authService';
 
-const STORAGE_KEY = 'clinica_estetica_briefing_draft_v1';
+const STORAGE_KEY = 'clinica_estetica_briefing_draft_v2';
 
 export default function App() {
-  // Obter ID da URL se existir (ex: ?id=clinica-beleza-123)
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  // Listen to Auth State
+  useEffect(() => {
+    getCurrentUser().then(user => {
+      if (user) setCurrentUser(user);
+    });
+
+    const { data: { subscription } } = onAuthStateChange((event, user) => {
+      setCurrentUser(user);
+    });
+
+    return () => {
+      if (subscription) subscription.unsubscribe();
+    };
+  }, []);
+
+  const userKeyPrefix = currentUser?.id ? `user_${currentUser.id}` : 'guest';
+
+  // Active briefing ID
   const [briefingId, setBriefingId] = useState(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('id') || localStorage.getItem(`${STORAGE_KEY}_active_id`) || generateBriefingId();
+    return urlParams.get('id') || localStorage.getItem(`${STORAGE_KEY}_${userKeyPrefix}_active_id`) || generateBriefingId();
   });
 
   const [headerData, setHeaderData] = useState(() => {
     try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_header_${briefingId}`);
+      const saved = localStorage.getItem(`${STORAGE_KEY}_${userKeyPrefix}_header_${briefingId}`);
       return saved ? JSON.parse(saved) : INITIAL_HEADER;
     } catch (e) {
       return INITIAL_HEADER;
@@ -36,7 +57,7 @@ export default function App() {
 
   const [answers, setAnswers] = useState(() => {
     try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_answers_${briefingId}`);
+      const saved = localStorage.getItem(`${STORAGE_KEY}__${userKeyPrefix}_answers_${briefingId}`);
       return saved ? JSON.parse(saved) : {};
     } catch (e) {
       return {};
@@ -45,7 +66,6 @@ export default function App() {
 
   const [activeModuleId, setActiveModuleId] = useState(BRIEFING_MODULES[0].id);
   const [theme, setTheme] = useState(() => localStorage.getItem('app_theme') || 'light');
-  const [showPreview, setShowPreview] = useState(true);
   const [copied, setCopied] = useState(false);
   const [toast, setToast] = useState(null);
   const [saveStatus, setSaveStatus] = useState('Salvo localmente');
@@ -65,14 +85,14 @@ export default function App() {
     localStorage.setItem('app_theme', theme);
   }, [theme]);
 
-  // Carregar dados da Nuvem se houver ID na URL e Supabase configurado
+  // Carregar dados da Nuvem se houver ID na URL
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const idFromUrl = urlParams.get('id');
 
     if (idFromUrl) {
       setBriefingId(idFromUrl);
-      localStorage.setItem(`${STORAGE_KEY}_active_id`, idFromUrl);
+      localStorage.setItem(`${STORAGE_KEY}_${userKeyPrefix}_active_id`, idFromUrl);
 
       if (isSupabaseConfigured) {
         setIsCloudLoading(true);
@@ -83,28 +103,27 @@ export default function App() {
             if (data.header_data) setHeaderData(data.header_data);
             if (data.answers) setAnswers(data.answers);
             setSaveStatus('Carregado da Nuvem');
-            showToastNotification(`Briefing "${data.clinic_name}" carregado com sucesso!`, 'info');
           } else if (error) {
-            setSaveStatus('Erro ao carregar da nuvem');
+            setSaveStatus('Erro ao carregar');
           }
           setIsCloudLoading(false);
         });
       }
     }
-  }, []);
+  }, [currentUser]);
 
   // Auto-save no LocalStorage + Supabase (Debounced)
   useEffect(() => {
-    // 1. Salvar no LocalStorage
+    // 1. LocalStorage
     try {
-      localStorage.setItem(`${STORAGE_KEY}_active_id`, briefingId);
-      localStorage.setItem(`${STORAGE_KEY}_header_${briefingId}`, JSON.stringify(headerData));
-      localStorage.setItem(`${STORAGE_KEY}_answers_${briefingId}`, JSON.stringify(answers));
+      localStorage.setItem(`${STORAGE_KEY}_${userKeyPrefix}_active_id`, briefingId);
+      localStorage.setItem(`${STORAGE_KEY}_${userKeyPrefix}_header_${briefingId}`, JSON.stringify(headerData));
+      localStorage.setItem(`${STORAGE_KEY}_${userKeyPrefix}_answers_${briefingId}`, JSON.stringify(answers));
     } catch (e) {
-      console.error('Erro ao salvar no LocalStorage', e);
+      console.error('Erro ao salvar localmente', e);
     }
 
-    // 2. Salvar no Supabase se configurado
+    // 2. Supabase
     if (isSupabaseConfigured) {
       setSaveStatus('Salvando...');
 
@@ -113,14 +132,15 @@ export default function App() {
       }
 
       saveTimeoutRef.current = setTimeout(async () => {
-        const { error } = await saveBriefingToCloud(briefingId, headerData, answers);
+        const userId = currentUser?.id || null;
+        const { error } = await saveBriefingToCloud(briefingId, headerData, answers, userId);
         if (!error) {
           const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
           setSaveStatus(`Salvo na Nuvem (${time})`);
         } else {
           setSaveStatus('Erro na nuvem (Salvo local)');
         }
-      }, 1200); // 1.2 segundos de debounce
+      }, 1200);
     } else {
       setSaveStatus('Salvo localmente');
     }
@@ -128,17 +148,22 @@ export default function App() {
     return () => {
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     };
-  }, [briefingId, headerData, answers]);
+  }, [briefingId, headerData, answers, currentUser]);
 
   const showToastNotification = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Alternar briefing ativo (da lista de briefings)
+  const handleSignOut = async () => {
+    await signOut();
+    setCurrentUser(null);
+    showToastNotification('Você saiu da sua conta.', 'info');
+  };
+
+  // Alternar briefing ativo
   const handleSelectBriefing = async (newId) => {
     setBriefingId(newId);
-    // Atualizar a URL sem recarregar a página
     const newUrl = `${window.location.pathname}?id=${encodeURIComponent(newId)}`;
     window.history.pushState({ path: newUrl }, '', newUrl);
 
@@ -148,12 +173,11 @@ export default function App() {
       if (!error && data) {
         setHeaderData(data.header_data || INITIAL_HEADER);
         setAnswers(data.answers || {});
-        showToastNotification(`Carregado: ${data.clinic_name}`, 'success');
+        showToastNotification(`Briefing "${data.clinic_name}" carregado!`, 'success');
       }
     } else {
-      // Carregar do LocalStorage
-      const localHeader = localStorage.getItem(`${STORAGE_KEY}_header_${newId}`);
-      const localAnswers = localStorage.getItem(`${STORAGE_KEY}_answers_${newId}`);
+      const localHeader = localStorage.getItem(`${STORAGE_KEY}_${userKeyPrefix}_header_${newId}`);
+      const localAnswers = localStorage.getItem(`${STORAGE_KEY}_${userKeyPrefix}_answers_${newId}`);
       setHeaderData(localHeader ? JSON.parse(localHeader) : INITIAL_HEADER);
       setAnswers(localAnswers ? JSON.parse(localAnswers) : {});
     }
@@ -174,18 +198,16 @@ export default function App() {
   const activeModuleIndex = BRIEFING_MODULES.findIndex(m => m.id === activeModuleId);
   const currentModule = BRIEFING_MODULES[activeModuleIndex] || BRIEFING_MODULES[0];
 
-  // Answer handler
   const handleAnswerChange = (key, value) => {
     setAnswers(prev => ({ ...prev, [key]: value }));
   };
 
-  // Navigation handlers
   const handleNextModule = () => {
     if (activeModuleIndex < BRIEFING_MODULES.length - 1) {
       setActiveModuleId(BRIEFING_MODULES[activeModuleIndex + 1].id);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      showToastNotification('Você chegou ao fim do briefing! Clique em "Baixar .MD" para salvar.', 'info');
+      showToastNotification('Fim do briefing! Clique em "Baixar .MD" para exportar.', 'info');
     }
   };
 
@@ -196,24 +218,21 @@ export default function App() {
     }
   };
 
-  // Reset briefing draft
   const handleReset = () => {
-    if (window.confirm('Tem certeza que deseja limpar todo o briefing atual? Todas as respostas deste briefing serão apagadas.')) {
+    if (window.confirm('Tem certeza que deseja limpar este briefing? As respostas serão apagadas.')) {
       setHeaderData(INITIAL_HEADER);
       setAnswers({});
-      localStorage.removeItem(`${STORAGE_KEY}_header_${briefingId}`);
-      localStorage.removeItem(`${STORAGE_KEY}_answers_${briefingId}`);
+      localStorage.removeItem(`${STORAGE_KEY}_${userKeyPrefix}_header_${briefingId}`);
+      localStorage.removeItem(`${STORAGE_KEY}_${userKeyPrefix}_answers_${briefingId}`);
       setActiveModuleId(BRIEFING_MODULES[0].id);
       showToastNotification('Briefing limpo com sucesso!', 'info');
     }
   };
 
-  // Generate Markdown
   const markdownContent = useMemo(() => {
     return generateMarkdown(headerData, answers);
   }, [headerData, answers]);
 
-  // Total Progress Calculation
   const progressPercentage = useMemo(() => {
     const allQuestions = BRIEFING_MODULES.flatMap(m => m.questions);
     const totalCount = allQuestions.length;
@@ -221,7 +240,6 @@ export default function App() {
     return Math.round((answeredCount / totalCount) * 100);
   }, [answers]);
 
-  // Copy Markdown to Clipboard
   const handleCopyMd = async () => {
     try {
       await navigator.clipboard.writeText(markdownContent);
@@ -233,7 +251,6 @@ export default function App() {
     }
   };
 
-  // Download Markdown file (.md)
   const handleDownloadMd = () => {
     const filename = headerData.clinicName
       ? `briefing_${headerData.clinicName.toLowerCase().replace(/[^a-z0-9]/g, '_')}.md`
@@ -248,14 +265,13 @@ export default function App() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    showToastNotification(`Arquivo "${filename}" baixado com sucesso!`, 'success');
+    showToastNotification(`Arquivo "${filename}" baixado!`, 'success');
   };
 
   const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
-  const togglePreview = () => setShowPreview(prev => !prev);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div className="app-shell">
       <Header
         headerData={headerData}
         setHeaderData={setHeaderData}
@@ -264,13 +280,14 @@ export default function App() {
         onReset={handleReset}
         onCopyMd={handleCopyMd}
         onDownloadMd={handleDownloadMd}
-        togglePreview={togglePreview}
-        showPreview={showPreview}
         saveStatus={saveStatus}
         progressPercentage={progressPercentage}
         onOpenShareModal={() => setIsShareModalOpen(true)}
         onOpenDashboard={() => setIsDashboardOpen(true)}
         onOpenSupabaseConfig={() => setIsSupabaseConfigOpen(true)}
+        currentUser={currentUser}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onSignOut={handleSignOut}
       />
 
       <div className="app-container">
@@ -286,7 +303,7 @@ export default function App() {
 
         <main className="app-main">
           {isCloudLoading ? (
-            <div style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--espresso-muted)' }}>
+            <div className="cloud-loading-container">
               <h3>Carregando briefing da nuvem...</h3>
             </div>
           ) : (
@@ -301,19 +318,18 @@ export default function App() {
             />
           )}
         </main>
-
-        {showPreview && (
-          <MarkdownPreviewDrawer
-            markdownContent={markdownContent}
-            onClose={() => setShowPreview(false)}
-            onCopy={handleCopyMd}
-            onDownload={handleDownloadMd}
-            copied={copied}
-          />
-        )}
       </div>
 
       {/* Modais e Drawers */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onAuthSuccess={(user) => {
+          setCurrentUser(user);
+          showToastNotification(`Bem-vindo, @${user.user_metadata?.username || user.email?.split('@')[0]}!`, 'success');
+        }}
+      />
+
       <ShareModal
         briefingId={briefingId}
         clinicName={headerData.clinicName}
@@ -333,6 +349,7 @@ export default function App() {
           setIsShareModalOpen(true);
         }}
         showToastNotification={showToastNotification}
+        currentUser={currentUser}
       />
 
       <SupabaseConfigModal

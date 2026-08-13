@@ -41,32 +41,39 @@ export default function Sidebar({
   };
 
   return (
-    <aside className="app-sidebar">
+    <aside className="app-sidebar" style={{ width: '280px', borderRight: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column' }}>
       {/* Clinic Header Metadata Form */}
-      <div style={{ padding: '1.5rem 1.25rem', borderBottom: '1px solid var(--border-delicate)', backgroundColor: 'var(--surface-white)' }}>
-        <h3 style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--rose-dust)', marginBottom: '0.85rem' }}>
+      <div style={{ padding: '1.5rem 1.25rem', borderBottom: '1px solid var(--border-color)' }}>
+        <h3 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '0.85rem' }}>
           Identificação da Reunião
         </h3>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--espresso-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.25rem' }}>
-              <Building2 size={13} style={{ color: 'var(--champagne)' }} /> Nome da Clínica
+            <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.25rem' }}>
+              <Building2 size={13} style={{ color: 'var(--text-primary)' }} /> Nome da Clínica
             </label>
             <input
               type="text"
               name="clinicName"
               value={headerData.clinicName}
               onChange={handleHeaderChange}
-              placeholder="Ex: Clínica Lumina Estética"
-              className="form-input"
-              style={{ padding: '0.5rem 0.75rem', fontSize: '0.83rem' }}
+              placeholder="Ex: Lumina Estética"
+              style={{
+                width: '100%',
+                padding: '0.5rem 0.75rem',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--border-color)',
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+                fontSize: '0.83rem'
+              }}
             />
           </div>
 
           <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--espresso-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.25rem' }}>
-              <User size={13} style={{ color: 'var(--champagne)' }} /> Cliente / Responsável
+            <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.25rem' }}>
+              <User size={13} style={{ color: 'var(--text-primary)' }} /> Cliente / Responsável
             </label>
             <input
               type="text"
@@ -74,15 +81,22 @@ export default function Sidebar({
               value={headerData.clientName}
               onChange={handleHeaderChange}
               placeholder="Ex: Dra. Ana Beatriz"
-              className="form-input"
-              style={{ padding: '0.5rem 0.75rem', fontSize: '0.83rem' }}
+              style={{
+                width: '100%',
+                padding: '0.5rem 0.75rem',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--border-color)',
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+                fontSize: '0.83rem'
+              }}
             />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
             <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--espresso-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.25rem' }}>
-                <MapPin size={13} style={{ color: 'var(--champagne)' }} /> Cidade/UF
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.25rem' }}>
+                <MapPin size={13} style={{ color: 'var(--text-primary)' }} /> Cidade/UF
               </label>
               <input
                 type="text"
@@ -90,41 +104,57 @@ export default function Sidebar({
                 value={headerData.cityState}
                 onChange={handleHeaderChange}
                 placeholder="São Paulo/SP"
-                className="form-input"
-                style={{ padding: '0.5rem 0.65rem', fontSize: '0.82rem' }}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem 0.65rem',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--bg-primary)',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.82rem'
+                }}
               />
             </div>
 
             <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--espresso-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.25rem' }}>
-                <Calendar size={13} style={{ color: 'var(--champagne)' }} /> Data
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.25rem' }}>
+                <Calendar size={13} style={{ color: 'var(--text-primary)' }} /> Data
               </label>
               <input
                 type="date"
                 name="date"
                 value={headerData.date}
                 onChange={handleHeaderChange}
-                className="form-input"
-                style={{ padding: '0.5rem 0.5rem', fontSize: '0.8rem' }}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem 0.5rem',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--bg-primary)',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.8rem'
+                }}
               />
             </div>
           </div>
         </div>
 
         {/* Global Progress Bar */}
-        <div style={{ marginTop: '1.25rem', paddingTop: '0.85rem', borderTop: '1px solid var(--border-delicate)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', fontWeight: 600, color: 'var(--espresso-muted)', marginBottom: '0.4rem' }}>
+        <div style={{ marginTop: '1.25rem', paddingTop: '0.85rem', borderTop: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
             <span>Preenchimento Global</span>
-            <span style={{ color: 'var(--rose-dust)', fontWeight: 700 }}>{progressPercentage}%</span>
+            <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{progressPercentage}%</span>
           </div>
-          <div style={{ height: '5px', width: '100%', backgroundColor: 'var(--border-delicate)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
+          <div style={{ height: '4px', width: '100%', backgroundColor: 'var(--border-color)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
             <div 
               style={{ 
                 height: '100%', 
-                width: `${progressPercentage}%`, 
-                background: 'linear-gradient(90deg, var(--rose-dust), var(--champagne))',
+                width: '100%', 
+                backgroundColor: 'var(--text-primary)',
                 borderRadius: 'var(--radius-full)',
-                transition: 'width 0.4s cubic-bezier(0.16, 1, 0.3, 1)' 
+                transformOrigin: 'left',
+                transform: `scaleX(${progressPercentage / 100})`,
+                transition: 'transform 0.3s ease' 
               }}
             />
           </div>
@@ -132,8 +162,8 @@ export default function Sidebar({
       </div>
 
       {/* Module Navigation List */}
-      <div style={{ padding: '1rem 0.75rem', flex: 1 }}>
-        <h4 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--espresso-subtle)', padding: '0 0.5rem', marginBottom: '0.5rem' }}>
+      <div style={{ padding: '1rem 0.75rem', flex: 1, overflowY: 'auto' }}>
+        <h4 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', padding: '0 0.5rem', marginBottom: '0.5rem' }}>
           Módulos do Briefing
         </h4>
 
@@ -155,32 +185,30 @@ export default function Sidebar({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   width: '100%',
-                  padding: '0.7rem 0.9rem',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid',
-                  borderColor: isSelected ? 'rgba(200, 169, 126, 0.5)' : 'transparent',
-                  backgroundColor: isSelected ? 'var(--surface-white)' : 'transparent',
-                  color: isSelected ? 'var(--rose-dust)' : 'var(--espresso-slate)',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: 'var(--radius-sm)',
+                  border: isSelected ? '1px solid var(--text-primary)' : '1px solid transparent',
+                  backgroundColor: isSelected ? 'var(--bg-primary)' : 'transparent',
+                  color: 'var(--text-primary)',
                   fontWeight: isSelected ? 700 : 500,
                   fontSize: '0.86rem',
                   cursor: 'pointer',
                   textAlign: 'left',
-                  transition: 'var(--transition-fast)',
-                  boxShadow: isSelected ? 'var(--shadow-card)' : 'none'
+                  transition: 'var(--transition-fast)'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                  <IconComponent size={18} style={{ color: isSelected ? 'var(--rose-dust)' : 'var(--espresso-muted)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                  <IconComponent size={16} style={{ color: isSelected ? 'var(--text-primary)' : 'var(--text-muted)' }} />
                   <span>{mod.shortTitle}</span>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   {isComplete ? (
-                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'var(--sage-emerald-light)', color: 'var(--sage-emerald)' }}>
-                      <Check size={12} strokeWidth={3} />
+                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '18px', height: '18px', borderRadius: '50%', backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)' }}>
+                      <Check size={11} strokeWidth={3} />
                     </span>
                   ) : (
-                    <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: 'var(--radius-full)', backgroundColor: isSelected ? 'var(--rose-dust-light)' : 'var(--surface-hover)', color: isSelected ? 'var(--rose-dust)' : 'var(--espresso-muted)', fontWeight: 600 }}>
+                    <span style={{ fontSize: '0.7rem', padding: '0.15rem 0.45rem', borderRadius: 'var(--radius-full)', backgroundColor: isSelected ? 'var(--bg-secondary)' : 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-muted)', fontWeight: 600 }}>
                       {answeredQ}/{totalQ}
                     </span>
                   )}

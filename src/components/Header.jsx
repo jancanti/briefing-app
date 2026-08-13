@@ -1,21 +1,20 @@
 import React from 'react';
 import { 
-  Sparkles, 
   Download, 
   Copy, 
   RotateCcw, 
-  Eye, 
   Sun, 
   Moon, 
-  CheckCircle2,
   Share2,
   FolderCheck,
   Cloud,
   CloudOff,
-  CloudRain,
-  Settings
+  User,
+  LogOut,
+  Sparkles
 } from 'lucide-react';
 import { isSupabaseConfigured } from '../lib/supabase';
+import { getDisplayUsername } from '../services/authService';
 
 export default function Header({
   headerData,
@@ -24,84 +23,75 @@ export default function Header({
   onReset,
   onCopyMd,
   onDownloadMd,
-  togglePreview,
-  showPreview,
   saveStatus,
   progressPercentage,
   onOpenShareModal,
   onOpenDashboard,
-  onOpenSupabaseConfig
+  onOpenSupabaseConfig,
+  currentUser,
+  onOpenAuthModal,
+  onSignOut
 }) {
-  // SVG Radial Ring Calculation
-  const radius = 17;
+  // SVG Radial Progress Ring Calculation
+  const radius = 16;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progressPercentage / 100) * circumference;
 
+  const displayUser = getDisplayUsername(currentUser);
+
   return (
     <header className="app-header">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        {/* Signature Radial Progress Ring */}
+      <div className="header-left">
+        {/* Progress Ring */}
         <div className="progress-ring-box" title={`Progresso total: ${progressPercentage}%`}>
-          <svg width="44" height="44" viewBox="0 0 44 44">
+          <svg width="40" height="40" viewBox="0 0 40 40">
             <circle
-              cx="22"
-              cy="22"
+              cx="20"
+              cy="20"
               r={radius}
-              stroke="var(--border-delicate)"
-              strokeWidth="3"
+              stroke="var(--border-color)"
+              strokeWidth="2.5"
               fill="transparent"
             />
             <circle
               className="progress-ring-circle"
-              cx="22"
-              cy="22"
+              cx="20"
+              cy="20"
               r={radius}
-              stroke="var(--rose-dust)"
-              strokeWidth="3"
+              stroke="var(--text-primary)"
+              strokeWidth="2.5"
               strokeDasharray={`${circumference} ${circumference}`}
               strokeDashoffset={strokeDashoffset}
-              strokeLinecap="round"
+              strokeLinecap="square"
               fill="transparent"
             />
           </svg>
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Sparkles size={16} style={{ color: 'var(--rose-dust)' }} />
+          <div className="progress-ring-inner">
+            <Sparkles size={14} style={{ color: 'var(--text-primary)' }} />
           </div>
         </div>
 
-        <div>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--espresso-slate)', letterSpacing: '0.01em', lineHeight: 1.1 }}>
-            Coletor de Briefing
+        <div className="header-title-block">
+          <h1 className="header-title">
+            Briefing de Clínica
           </h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.78rem', color: 'var(--espresso-muted)', marginTop: '0.1rem' }}>
-            <span style={{ fontWeight: 600, color: 'var(--champagne)' }}>
+          <div className="header-subtitle-row">
+            <span className="header-clinic-name">
               {headerData.clinicName || 'Nova Clínica de Estética'}
             </span>
-            <span>•</span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: 'var(--sage-emerald)', fontWeight: 600 }}>
+            <span className="dot-separator">•</span>
+            <span className="cloud-status-badge">
               {isSupabaseConfigured ? (
                 <>
-                  <Cloud size={13} /> {saveStatus}
+                  <Cloud size={12} /> {saveStatus}
                 </>
               ) : (
                 <button
                   onClick={onOpenSupabaseConfig}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    padding: 0,
-                    color: 'var(--rose-dust)',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.25rem',
-                    fontSize: '0.78rem',
-                    textDecoration: 'underline'
-                  }}
+                  className="btn-link-cloud"
                   title="Clique para conectar com Supabase"
                 >
-                  <CloudOff size={13} /> Configurar Nuvem (Supabase)
+                  <CloudOff size={12} /> Configurar Nuvem
                 </button>
               )}
             </span>
@@ -109,72 +99,89 @@ export default function Header({
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', flexWrap: 'wrap' }}>
+      <div className="header-right">
+        {/* User Account / Auth Section */}
+        {currentUser ? (
+          <div className="user-profile-badge">
+            <div className="user-avatar" title={`Conectado como @${displayUser}`}>
+              <User size={14} />
+            </div>
+            <span className="user-name">@{displayUser}</span>
+            <button
+              onClick={onSignOut}
+              className="btn-icon-minimal"
+              title="Sair da conta"
+            >
+              <LogOut size={15} />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={onOpenAuthModal}
+            className="btn-bw-outline btn-sm"
+            title="Fazer login ou cadastrar"
+          >
+            <User size={15} />
+            <span>Entrar / Cadastrar</span>
+          </button>
+        )}
+
         {/* Meus Briefings Button */}
         <button
           onClick={onOpenDashboard}
-          className="btn btn-secondary btn-sm"
-          title="Ver todos os briefings salvos na nuvem"
-          style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+          className="btn-bw-secondary btn-sm"
+          title="Ver todos os seus briefings salvos"
         >
-          <FolderCheck size={16} style={{ color: 'var(--rose-dust)' }} />
-          <span style={{ display: window.innerWidth < 768 ? 'none' : 'inline' }}>Meus Briefings</span>
+          <FolderCheck size={15} />
+          <span className="hide-mobile">Meus Briefings</span>
         </button>
 
         {/* Compartilhar / Enviar para Cliente */}
         <button
           onClick={onOpenShareModal}
-          className="btn btn-primary btn-sm"
-          title="Gerar link único para a cliente preencher"
-          style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', backgroundColor: 'var(--rose-dust)', color: '#fff' }}
+          className="btn-bw-secondary btn-sm"
+          title="Gerar link amigável para preenchimento"
         >
-          <Share2 size={16} />
-          <span>Enviar p/ Cliente</span>
+          <Share2 size={15} />
+          <span className="hide-mobile">Compartilhar</span>
         </button>
 
+        {/* Theme Toggle */}
         <button 
           onClick={toggleTheme} 
-          className="btn btn-secondary btn-icon"
-          title={theme === 'light' ? 'Alternar para Modo Escuro' : 'Alternar para Modo Claro'}
+          className="btn-icon-minimal"
+          title={theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}
         >
-          {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+          {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
         </button>
 
-        <button 
-          onClick={togglePreview} 
-          className={`btn ${showPreview ? 'btn-primary' : 'btn-secondary'} btn-sm`}
-          title="Alternar prévia em tempo real"
-        >
-          <Eye size={16} />
-          <span style={{ display: window.innerWidth < 640 ? 'none' : 'inline' }}>
-            {showPreview ? 'Ocultar Prévia' : 'Ver Markdown'}
-          </span>
-        </button>
-
+        {/* Copiar .MD */}
         <button 
           onClick={onCopyMd} 
-          className="btn btn-secondary btn-sm"
-          title="Copiar texto formatado em Markdown"
+          className="btn-bw-secondary btn-sm"
+          title="Copiar texto em formato Markdown"
         >
-          <Copy size={16} />
-          <span style={{ display: window.innerWidth < 640 ? 'none' : 'inline' }}>Copiar .MD</span>
+          <Copy size={15} />
+          <span className="hide-mobile">Copiar .MD</span>
         </button>
 
+        {/* Baixar .MD */}
         <button 
           onClick={onDownloadMd} 
-          className="btn btn-primary btn-sm"
-          title="Baixar documento .md para o computador"
+          className="btn-bw-primary btn-sm"
+          title="Baixar documento .md"
         >
-          <Download size={16} />
+          <Download size={15} />
           <span>Baixar .MD</span>
         </button>
 
+        {/* Limpar / Reset */}
         <button 
           onClick={onReset} 
-          className="btn btn-danger btn-icon"
-          title="Limpar formulário e iniciar novo briefing"
+          className="btn-icon-minimal text-danger"
+          title="Novo Briefing"
         >
-          <RotateCcw size={16} />
+          <RotateCcw size={15} />
         </button>
       </div>
     </header>
