@@ -32,27 +32,13 @@
   display: none;
 }
 
-.progress-ring-box {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.progress-ring-circle {
-  transition: stroke-dashoffset 0.35s ease;
-  transform: rotate(-90deg);
-  transform-origin: 50% 50%;
-}
-
-.progress-ring-inner {
+.header-progress-bar {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  bottom: 0;
+  left: 0;
+  height: 2.5px;
+  background-color: var(--text-primary);
+  transition: width 0.3s ease;
 }
 
 .header-title-block {

@@ -4,7 +4,6 @@ import {
   CloudOff,
   User,
   LogOut,
-  Sparkles,
   Menu,
   ShieldCheck
 } from 'lucide-react';
@@ -28,10 +27,6 @@ export default function Header({
   isAdminView = false,
   onCloseAdminView
 }) {
-  const radius = 16;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (progressPercentage / 100) * circumference;
-
   const displayUser = getDisplayUsername(currentUser);
   const isAdmin = isAdminUser(currentUser);
 
@@ -87,37 +82,7 @@ export default function Header({
           title="Ver Módulos do Briefing"
         >
           <Menu size={16} />
-          <span>Módulos</span>
         </button>
-
-        {/* Progress Ring */}
-        <div className="progress-ring-box" title={`Progresso total: ${progressPercentage}%`}>
-          <svg width="40" height="40" viewBox="0 0 40 40">
-            <circle
-              cx="20"
-              cy="20"
-              r={radius}
-              stroke="var(--border-color)"
-              strokeWidth="2.5"
-              fill="transparent"
-            />
-            <circle
-              className="progress-ring-circle"
-              cx="20"
-              cy="20"
-              r={radius}
-              stroke="var(--text-primary)"
-              strokeWidth="2.5"
-              strokeDasharray={`${circumference} ${circumference}`}
-              strokeDashoffset={strokeDashoffset}
-              strokeLinecap="square"
-              fill="transparent"
-            />
-          </svg>
-          <div className="progress-ring-inner">
-            <Sparkles size={14} style={{ color: 'var(--text-primary)' }} />
-          </div>
-        </div>
 
         <div className="header-title-block">
           <h1 className="header-title">
@@ -175,6 +140,13 @@ export default function Header({
           </div>
         )}
       </div>
+
+      {/* Progress Line */}
+      <div
+        className="header-progress-bar"
+        style={{ width: `${progressPercentage}%` }}
+        title={`Progresso total: ${progressPercentage}%`}
+      />
     </header>
   );
 }
