@@ -39,7 +39,7 @@ export default function AuthScreen({ onAuthSuccess }) {
         <div className="auth-screen-brand">
           <h1 className="auth-brand-title">Briefing do site</h1>
           <p className="auth-brand-subtitle">
-            Digite seu e-mail e senha para fazer seu briefing
+            Digite o seu e-mail e senha para acessar o briefing
           </p>
         </div>
 
