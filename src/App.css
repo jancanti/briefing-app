@@ -957,7 +957,8 @@
 
   .auth-screen-layout {
     padding: 1.5rem 1rem;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
   }
 
   .auth-screen-card {
@@ -967,14 +968,23 @@
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .auth-screen-brand {
+    align-items: center;
+    text-align: center;
   }
 
   .auth-brand-title {
     font-size: 1.95rem;
+    text-align: center;
   }
 
   .auth-brand-subtitle {
     font-size: 0.8rem;
+    text-align: center;
   }
 
   .input-with-icon input,
