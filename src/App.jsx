@@ -6,13 +6,13 @@ import ToastNotification from './components/ToastNotification';
 import ShareModal from './components/ShareModal';
 import BriefingsDashboardDrawer from './components/BriefingsDashboardDrawer';
 import AdminDashboardDrawer from './components/AdminDashboardDrawer';
-import SupabaseConfigModal from './components/SupabaseConfigModal';
+import FirebaseConfigModal from './components/FirebaseConfigModal';
 import AuthScreen from './components/AuthScreen';
 import './App.css';
 
 import { ChevronUp } from 'lucide-react';
 import { BRIEFING_MODULES, INITIAL_HEADER } from './data/briefingModules';
-import { isSupabaseConfigured } from './lib/supabase';
+import { isFirebaseConfigured } from './lib/firebase';
 import { 
   generateBriefingId, 
   getBriefingById, 
@@ -54,7 +54,7 @@ export default function App() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
   const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
-  const [isSupabaseConfigOpen, setIsSupabaseConfigOpen] = useState(false);
+  const [isFirebaseConfigOpen, setIsFirebaseConfigOpen] = useState(false);
 
   const saveTimeoutRef = useRef(null);
 
@@ -68,24 +68,15 @@ export default function App() {
       setAuthInitialized(true);
     });
 
-    const { data: { subscription } } = onAuthStateChange((event, user) => {
-      setCurrentUser(user);
-      if (user && isAdminUser(user)) {
+    const { data: { subscription } } = onAuthStateChange((event, sessionUser) => {
+      setCurrentUser(sessionUser);
+      if (sessionUser && isAdminUser(sessionUser)) {
         setIsAdminDashboardOpen(true);
       }
-      if (!user) {
-        setBriefingId('');
-        setHeaderData(INITIAL_HEADER);
-        setAnswers({});
-        if (window.location.search) {
-          window.history.pushState({}, '', window.location.pathname);
-        }
-      }
-      setAuthInitialized(true);
     });
 
     return () => {
-      if (subscription) subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, []);
 
@@ -97,10 +88,10 @@ export default function App() {
     localStorage.setItem('app_theme', theme);
   }, [theme]);
 
-  // Load briefing data safely after user is authenticated
+  // Sync / Load Briefing for current user
   useEffect(() => {
     if (!currentUser) {
-      setDataLoaded(false);
+      setDataLoaded(true);
       return;
     }
 
@@ -115,7 +106,7 @@ export default function App() {
       let targetId = idFromUrl || localStorage.getItem(`${STORAGE_KEY}_${prefix}_active_id`);
 
       // 1. Try loading specific briefing if targetId exists
-      if (isSupabaseConfigured && targetId) {
+      if (isFirebaseConfigured && targetId) {
         const { data, error } = await getBriefingById(targetId);
         if (!error && data) {
           if (!data.user_id || data.user_id !== currentUser.id) {
@@ -132,7 +123,7 @@ export default function App() {
       }
 
       // 2. Search user's cloud briefings by user_id
-      if (isSupabaseConfigured) {
+      if (isFirebaseConfigured) {
         const { data: userBriefings } = await listAllBriefingsFromCloud(currentUser.id);
         if (userBriefings && userBriefings.length > 0) {
           const latest = userBriefings[0];
@@ -212,7 +203,7 @@ export default function App() {
       console.error('Erro ao salvar localmente', e);
     }
 
-    if (isSupabaseConfigured) {
+    if (isFirebaseConfigured) {
       setSaveStatus('Salvando...');
 
       if (saveTimeoutRef.current) {
@@ -270,7 +261,7 @@ export default function App() {
     const newUrl = `${window.location.pathname}?id=${encodeURIComponent(newId)}`;
     window.history.pushState({ path: newUrl }, '', newUrl);
 
-    if (isSupabaseConfigured) {
+    if (isFirebaseConfigured) {
       setSaveStatus('Buscando da nuvem...');
       const { data, error } = await getBriefingById(newId);
       if (!error && data) {
@@ -448,7 +439,7 @@ export default function App() {
         onOpenShareModal={() => setIsShareModalOpen(true)}
         onOpenDashboard={() => setIsDashboardOpen(true)}
         onOpenAdminDashboard={() => setIsAdminDashboardOpen(true)}
-        onOpenSupabaseConfig={() => setIsSupabaseConfigOpen(true)}
+        onOpenFirebaseConfig={() => setIsFirebaseConfigOpen(true)}
         currentUser={currentUser}
         onSignOut={handleSignOut}
         onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
@@ -519,9 +510,9 @@ export default function App() {
         currentUser={currentUser}
       />
 
-      <SupabaseConfigModal
-        isOpen={isSupabaseConfigOpen}
-        onClose={() => setIsSupabaseConfigOpen(false)}
+      <FirebaseConfigModal
+        isOpen={isFirebaseConfigOpen}
+        onClose={() => setIsFirebaseConfigOpen(false)}
       />
 
       <ToastNotification toast={toast} />

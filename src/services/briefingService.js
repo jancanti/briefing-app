@@ -1,4 +1,14 @@
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  deleteDoc,
+  query,
+  where,
+} from 'firebase/firestore';
+import { db, isFirebaseConfigured } from '../lib/firebase';
 
 /**
  * Gera um ID único amigável (slug de 6 caracteres ou baseado no nome da clínica)
@@ -17,23 +27,28 @@ export function generateBriefingId(clinicName = '') {
 }
 
 /**
- * Busca o briefing único do usuário no Supabase (o mais recente)
+ * Busca o briefing único do usuário no Firestore (o mais recente)
  */
 export async function getBriefingForUser(userId) {
-  if (!isSupabaseConfigured || !supabase || !userId) {
-    return { data: null, error: new Error('Supabase não configurado ou userId ausente') };
+  if (!isFirebaseConfigured || !db || !userId) {
+    return { data: null, error: new Error('Firebase não configurado ou userId ausente') };
   }
 
   try {
-    const { data, error } = await supabase
-      .from('briefings')
-      .select('*')
-      .eq('user_id', userId)
-      .order('updated_at', { ascending: false })
-      .limit(1);
+    const q = query(
+      collection(db, 'briefings'),
+      where('user_id', '==', userId)
+    );
+    const querySnapshot = await getDocs(q);
+    const items = [];
+    querySnapshot.forEach((docSnap) => {
+      items.push({ id: docSnap.id, ...docSnap.data() });
+    });
 
-    if (error) throw error;
-    return { data: data && data.length > 0 ? data[0] : null, error: null };
+    // Ordena pelo updated_at mais recente em memória
+    items.sort((a, b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0));
+
+    return { data: items.length > 0 ? items[0] : null, error: null };
   } catch (err) {
     console.error('Erro ao buscar briefing do usuário:', err);
     return { data: null, error: err };
@@ -41,22 +56,22 @@ export async function getBriefingForUser(userId) {
 }
 
 /**
- * Busca um briefing pelo ID no Supabase
+ * Busca um briefing pelo ID no Firestore
  */
 export async function getBriefingById(id) {
-  if (!isSupabaseConfigured || !supabase) {
-    return { data: null, error: new Error('Supabase não configurado') };
+  if (!isFirebaseConfigured || !db || !id) {
+    return { data: null, error: new Error('Firebase não configurado ou ID ausente') };
   }
 
   try {
-    const { data, error } = await supabase
-      .from('briefings')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const docRef = doc(db, 'briefings', id);
+    const docSnap = await getDoc(docRef);
 
-    if (error) throw error;
-    return { data, error: null };
+    if (!docSnap.exists()) {
+      return { data: null, error: null };
+    }
+
+    return { data: { id: docSnap.id, ...docSnap.data() }, error: null };
   } catch (err) {
     console.error('Erro ao buscar briefing:', err);
     return { data: null, error: err };
@@ -64,21 +79,22 @@ export async function getBriefingById(id) {
 }
 
 /**
- * Salva ou atualiza um briefing no Supabase (Upsert) vinculado ao usuário
+ * Salva ou atualiza um briefing no Firestore (Upsert) vinculado ao usuário
  */
 export async function saveBriefingToCloud(id, headerData, answers, userId = null) {
-  if (!isSupabaseConfigured || !supabase) {
-    return { data: null, error: new Error('Supabase não configurado') };
+  if (!isFirebaseConfigured || !db) {
+    return { data: null, error: new Error('Firebase não configurado') };
   }
 
   const clinicName = headerData?.clinicName || 'Clínica de Estética';
+  const briefingId = id || generateBriefingId(clinicName);
 
   try {
     const payload = {
-      id,
+      id: briefingId,
       clinic_name: clinicName,
-      header_data: headerData,
-      answers: answers,
+      header_data: headerData || {},
+      answers: answers || {},
       updated_at: new Date().toISOString(),
     };
 
@@ -86,42 +102,42 @@ export async function saveBriefingToCloud(id, headerData, answers, userId = null
       payload.user_id = userId;
     }
 
-    const { data, error } = await supabase
-      .from('briefings')
-      .upsert(payload)
-      .select()
-      .single();
+    const docRef = doc(db, 'briefings', briefingId);
+    await setDoc(docRef, payload, { merge: true });
 
-    if (error) throw error;
-    return { data, error: null };
+    return { data: payload, error: null };
   } catch (err) {
-    console.error('Erro ao salvar briefing na nuvem:', err);
+    console.error('Erro ao salvar briefing no Firestore:', err);
     return { data: null, error: err };
   }
 }
 
 /**
- * Lista todos os briefings salvos pertencentes ao usuário logado
+ * Lista todos os briefings salvos pertencentes ao usuário logado (ou todos se admin/sem filtro)
  */
 export async function listAllBriefingsFromCloud(userId = null) {
-  if (!isSupabaseConfigured || !supabase) {
-    return { data: [], error: new Error('Supabase não configurado') };
+  if (!isFirebaseConfigured || !db) {
+    return { data: [], error: new Error('Firebase não configurado') };
   }
 
   try {
-    let query = supabase
-      .from('briefings')
-      .select('id, clinic_name, updated_at, created_at, header_data, answers, user_id')
-      .order('updated_at', { ascending: false });
-
+    let q;
     if (userId) {
-      query = query.eq('user_id', userId);
+      q = query(collection(db, 'briefings'), where('user_id', '==', userId));
+    } else {
+      q = collection(db, 'briefings');
     }
 
-    const { data, error } = await query;
+    const querySnapshot = await getDocs(q);
+    const list = [];
+    querySnapshot.forEach((docSnap) => {
+      list.push({ id: docSnap.id, ...docSnap.data() });
+    });
 
-    if (error) throw error;
-    return { data: data || [], error: null };
+    // Ordena do mais recente para o mais antigo
+    list.sort((a, b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0));
+
+    return { data: list, error: null };
   } catch (err) {
     console.error('Erro ao listar briefings:', err);
     return { data: [], error: err };
@@ -129,20 +145,16 @@ export async function listAllBriefingsFromCloud(userId = null) {
 }
 
 /**
- * Exclui um briefing pelo ID
+ * Exclui um briefing pelo ID no Firestore
  */
 export async function deleteBriefingFromCloud(id) {
-  if (!isSupabaseConfigured || !supabase) {
-    return { data: null, error: new Error('Supabase não configurado') };
+  if (!isFirebaseConfigured || !db || !id) {
+    return { data: null, error: new Error('Firebase não configurado ou ID ausente') };
   }
 
   try {
-    const { error } = await supabase
-      .from('briefings')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
+    const docRef = doc(db, 'briefings', id);
+    await deleteDoc(docRef);
     return { error: null };
   } catch (err) {
     console.error('Erro ao excluir briefing:', err);

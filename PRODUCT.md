@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-React 19, Vite, Vanilla CSS, Supabase (Database, Auth & Row Level Security), Mobile-First & Desktop Responsive layout.
+React 19, Vite, Vanilla CSS, Firebase (Cloud Firestore & Firebase Auth), Mobile-First & Desktop Responsive layout.
 
 ## Users
 
@@ -32,7 +32,7 @@ Unauthenticated users see a clean B&W Login/Signup screen upon opening the appli
 - Mandatory Auth Gate: The app opens directly to a full-screen Login/Signup view.
 - Admin Panel (`jancanti@gmail.com`): Dedicated admin interface listing all platform briefings with "Copiar .MD" and "Baixar .MD" actions.
 - User-Scoped Isolation: Standard users access exclusively their own saved briefings tied to their `user_id`.
-- Supabase Authentication: Username/Email + Password login.
+- Firebase Authentication: Username/Email + Password login.
 - Responsive Web & Mobile Layout: Clean desktop sidebar + main view, fluid mobile navigation toggle drawer for small viewports.
 - Minimalist Black & White design system (stark monochrome palette, high contrast, crisp typography using the **Inter** font family across the entire project).
 
@@ -47,7 +47,7 @@ Unauthenticated users see a clean B&W Login/Signup screen upon opening the appli
 
 - Runnable React + Vite application in `src/`.
 - Pre-configured briefing module definitions in `src/data/briefingModules.js`.
-- Supabase integration layer in `src/lib/supabase.js` and `src/services/briefingService.js`.
+- Firebase integration layer in `src/lib/firebase.js` and `src/services/briefingService.js`.
 
 ## Product Principles
 

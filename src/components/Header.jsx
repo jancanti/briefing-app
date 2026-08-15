@@ -6,7 +6,7 @@ import {
   Menu,
   ShieldCheck
 } from 'lucide-react';
-import { isSupabaseConfigured } from '../lib/supabase';
+import { isFirebaseConfigured } from '../lib/firebase';
 import { getDisplayUsername, isAdminUser } from '../services/authService';
 
 export default function Header({
@@ -19,6 +19,7 @@ export default function Header({
   onOpenShareModal,
   onOpenDashboard,
   onOpenAdminDashboard,
+  onOpenFirebaseConfig,
   onOpenSupabaseConfig,
   currentUser,
   onSignOut,
@@ -91,14 +92,14 @@ export default function Header({
             <span className="header-clinic-name">
               {headerData.clinicName || 'Nova Clínica de Estética'}
             </span>
-            {!isSupabaseConfigured && (
+            {!isFirebaseConfigured && (
               <>
                 <span className="dot-separator">•</span>
                 <span className="cloud-status-badge">
                   <button
-                    onClick={onOpenSupabaseConfig}
+                    onClick={onOpenFirebaseConfig || onOpenSupabaseConfig}
                     className="btn-link-cloud"
-                    title="Clique para conectar com Supabase"
+                    title="Clique para conectar com Firebase"
                   >
                     <CloudOff size={14} />
                   </button>
